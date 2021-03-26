@@ -4,20 +4,21 @@
 #ifndef INCLUDE_CONSTANTS_H_
 #define INCLUDE_CONSTANTS_H_
 
+/**************************************************************
+ * 
+ * Header file to define a bunch of constants
+ *
+ **************************************************************/
+
 #include <vector>
 
-// -------------------------------------------------------------------------
-// Header file to define a bunch of constants
-// -------------------------------------------------------------------------
-
-
-// -------------------------------------------------------------------------
-// Physical Constants
-//   - Naming standards:
-//     - Names start with a "c" to indicate they are constants
-//     - Names should be all CAPS (except for "c" at start)
-//     - Should use common abbreviations for names and not whole names
-// -------------------------------------------------------------------------
+/// -------------------------------------------------------------------------
+/// Physical Constants
+///   - Naming standards:
+///     - Names start with a "c" to indicate they are constants
+///     - Names should be all CAPS (except for "c" at start)
+///     - Should use common abbreviations for names and not whole names
+/// -------------------------------------------------------------------------
 
 // avogadros_number (per mole)
 const float cNA = 6.02214086e23;
@@ -46,9 +47,9 @@ const float cE = 1.6022e-19;
 // Speed of Light (m/s)
 const float cC = 2.9979e8;
 
-// -------------------------------------------------------------------------
-// Stellar constants:
-// -------------------------------------------------------------------------
+/// -------------------------------------------------------------------------
+/// Stellar constants:
+/// -------------------------------------------------------------------------
 
 // gravitational_constant (m3/kg/s2)
 const float cG = 6.67408e-11;
@@ -56,36 +57,36 @@ const float cG = 6.67408e-11;
 // This is for our sun (solar mass in kg):
 const float cMSOL = 1.989e30;
 
-// -------------------------------------------------------------------------
-// Some constants for time
-// -------------------------------------------------------------------------
+/// -------------------------------------------------------------------------
+/// Some constants for time
+/// -------------------------------------------------------------------------
 
 const std::vector<int> cDAYS {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 const int cREFYEAR = 1965;
 const double cREFJULIAN = 2438762.0;
 const double cJULIAN2000 = 2451545.0;
 
-// -------------------------------------------------------------------------
-// Some Constants for Angles
-// -------------------------------------------------------------------------
+/// -------------------------------------------------------------------------
+/// Some Constants for Angles
+/// -------------------------------------------------------------------------
 
 const float cPI = 3.141592653589793;
 const float cTWOPI = 2*cPI;
 
-// -------------------------------------------------------------------------
-// Conversion Constants:
-// - Naming standards:
-//   - Names start with a "c" to indicate they are constants
-//   - Names have a lower-case "to" in them to indicate conversion
-//   - Names are all UPPER CASE otherwise
-// -------------------------------------------------------------------------
+/// -------------------------------------------------------------------------
+/// Conversion Constants:
+/// - Naming standards:
+///   - Names start with a "c" to indicate they are constants
+///   - Names have a lower-case "to" in them to indicate conversion
+///   - Names are all UPPER CASE otherwise
+/// -------------------------------------------------------------------------
 
 const float cDtoR = cPI/180.0;
 const float cRtoD = 180.0/cPI;
 
-// -------------------------------------------------------------------------
-// converting time between seconds and other units of time:
-// -------------------------------------------------------------------------
+/// -------------------------------------------------------------------------
+/// converting time between seconds and other units of time:
+/// -------------------------------------------------------------------------
 
 // Years <-> Seconds:
 const double cYtoS = 31536000.0;
@@ -107,9 +108,9 @@ const double cStoM = 1.0 / cMtoS;
 const double cMStoS = 1.0/1000.0;
 const double cStoMS = 1000.0;
 
-// -------------------------------------------------------------------------
-// converting lengths between meters and other units of measurement:
-// -------------------------------------------------------------------------
+/// -------------------------------------------------------------------------
+/// converting lengths between meters and other units of measurement:
+/// -------------------------------------------------------------------------
 
 // kilometer <-> meter:
 const float cKMtoM = 1000.0;

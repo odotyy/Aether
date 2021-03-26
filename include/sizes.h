@@ -4,6 +4,12 @@
 #ifndef INCLUDE_SIZES_H_
 #define INCLUDE_SIZES_H_
 
+/**************************************************************
+ * 
+ *
+ *
+ **************************************************************/
+
 // This is the file that defines the number of grid points in each
 // direction.  The entire code is based on these numbers, so you need
 // to recompile if you change these numbers.

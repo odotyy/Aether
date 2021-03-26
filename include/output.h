@@ -4,6 +4,12 @@
 #ifndef INCLUDE_OUTPUT_H_
 #define INCLUDE_OUTPUT_H_
 
+/**************************************************************
+ * 
+ *
+ *
+ **************************************************************/
+
 #include "../include/neutrals.h"
 #include "../include/grid.h"
 #include "../include/times.h"

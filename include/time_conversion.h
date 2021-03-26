@@ -4,6 +4,12 @@
 #ifndef INCLUDE_TIME_CONVERSION_H_
 #define INCLUDE_TIME_CONVERSION_H_
 
+/**************************************************************
+ * 
+ *
+ *
+ **************************************************************/
+
 #include <vector>
 
 double time_int_to_jday(std::vector<int> itime);

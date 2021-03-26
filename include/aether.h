@@ -4,6 +4,12 @@
 #ifndef INCLUDE_AETHER_H_
 #define INCLUDE_AETHER_H_
 
+/**************************************************************
+ * 
+ *
+ *
+ **************************************************************/
+
 // The armadillo library is to allow the use of 3d cubes and other
 // array types, with array math built in. This eliminates loops!
 #include <armadillo>

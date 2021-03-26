@@ -4,6 +4,12 @@
 #ifndef INCLUDE_CHEMISTRY_H_
 #define INCLUDE_CHEMISTRY_H_
 
+/**************************************************************
+ * 
+ *
+ *
+ **************************************************************/
+
 #include <vector>
 #include <string>
 

@@ -4,6 +4,14 @@
 #ifndef INCLUDE_ADVANCE_H_
 #define INCLUDE_ADVANCE_H_
 
+/**************************************************************
+ * 
+ * advance:
+ *
+ * - Function that advances the states in Aether by one time step
+ *
+ **************************************************************/
+
 #include "../include/times.h"
 #include "../include/inputs.h"
 #include "../include/neutrals.h"

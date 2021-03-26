@@ -4,6 +4,12 @@
 #ifndef INCLUDE_CALC_CHEMISTRY_H_
 #define INCLUDE_CALC_CHEMISTRY_H_
 
+/**************************************************************
+ * 
+ *
+ *
+ **************************************************************/
+
 #include <vector>
 #include <string>
 #include "../include/ions.h"
