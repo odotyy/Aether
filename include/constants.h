@@ -6,19 +6,24 @@
 
 /**************************************************************
  * 
- * Header file to define a bunch of constants
+ * Header file to define a bunch of constants, including both physical
+ * constants and conversion constants
+ *
+ * \author Aaron Ridley
+ *
+ * \date 2021/03/28 
  *
  **************************************************************/
 
 #include <vector>
 
-/// -------------------------------------------------------------------------
-/// Physical Constants
-///   - Naming standards:
-///     - Names start with a "c" to indicate they are constants
-///     - Names should be all CAPS (except for "c" at start)
-///     - Should use common abbreviations for names and not whole names
-/// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// Physical Constants
+//   - Naming standards:
+//     - Names start with a "c" to indicate they are constants
+//     - Names should be all CAPS (except for "c" at start)
+//     - Should use common abbreviations for names and not whole names
+// -------------------------------------------------------------------------
 
 // avogadros_number (per mole)
 const float cNA = 6.02214086e23;
@@ -27,12 +32,12 @@ const float cNA = 6.02214086e23;
 const float cKB = 1.38064852e-23;
 
 // Universal Gas Constant (J/K/mol)
-const float cR = cNA * cKB;
+onst float cR = cNA * cKB;
 
 // Mass of a proton (kg)
 const float cMP = 1.6726219e-27;
 
-// Atomic Mass Unit (kk)
+// Atomic Mass Unit (kg)
 const float cAMU = cMP;
 
 // Mass of an electron (kg)
@@ -47,9 +52,9 @@ const float cE = 1.6022e-19;
 // Speed of Light (m/s)
 const float cC = 2.9979e8;
 
-/// -------------------------------------------------------------------------
-/// Stellar constants:
-/// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// Stellar constants:
+// -------------------------------------------------------------------------
 
 // gravitational_constant (m3/kg/s2)
 const float cG = 6.67408e-11;
@@ -57,36 +62,45 @@ const float cG = 6.67408e-11;
 // This is for our sun (solar mass in kg):
 const float cMSOL = 1.989e30;
 
-/// -------------------------------------------------------------------------
-/// Some constants for time
-/// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// Some constants for time
+// -------------------------------------------------------------------------
 
+// Days of the month:
 const std::vector<int> cDAYS {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+// Reference year for keeping track of time:
 const int cREFYEAR = 1965;
+
+// Julian day of our reference date (Jan 1, 1965):
 const double cREFJULIAN = 2438762.0;
+
+// Julian day of January 1, 2000, needed for planetary calculations:
 const double cJULIAN2000 = 2451545.0;
 
-/// -------------------------------------------------------------------------
-/// Some Constants for Angles
-/// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// Some Constants for Angles
+// -------------------------------------------------------------------------
 
+// PI:
 const float cPI = 3.141592653589793;
 const float cTWOPI = 2*cPI;
 
-/// -------------------------------------------------------------------------
-/// Conversion Constants:
-/// - Naming standards:
-///   - Names start with a "c" to indicate they are constants
-///   - Names have a lower-case "to" in them to indicate conversion
-///   - Names are all UPPER CASE otherwise
-/// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// Conversion Constants:
+// - Naming standards:
+//   - Names start with a "c" to indicate they are constants
+//   - Names have a lower-case "to" in them to indicate conversion
+//   - Names are all UPPER CASE otherwise
+// -------------------------------------------------------------------------
 
+// Degrees <-> Radians:
 const float cDtoR = cPI/180.0;
 const float cRtoD = 180.0/cPI;
 
-/// -------------------------------------------------------------------------
-/// converting time between seconds and other units of time:
-/// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// converting time between seconds and other units of time:
+// -------------------------------------------------------------------------
 
 // Years <-> Seconds:
 const double cYtoS = 31536000.0;
@@ -108,9 +122,9 @@ const double cStoM = 1.0 / cMtoS;
 const double cMStoS = 1.0/1000.0;
 const double cStoMS = 1000.0;
 
-/// -------------------------------------------------------------------------
-/// converting lengths between meters and other units of measurement:
-/// -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// converting lengths between meters and other units of measurement:
+// -------------------------------------------------------------------------
 
 // kilometer <-> meter:
 const float cKMtoM = 1000.0;
