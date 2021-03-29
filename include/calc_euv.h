@@ -22,6 +22,7 @@
 #include "neutrals.h"
 #include "ions.h"
 
+/// calculate all of the stuff related to EUV:
 int calc_euv(Planets planet,
              Grid grid,
              Times time,
