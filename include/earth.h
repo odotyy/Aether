@@ -2,7 +2,9 @@
 // Full license can be found in License.md
 
 /**************************************************************
- * 
+ * This is a temporaty file that should not be used at some point in
+ * the near future. All of these constants should be defined in the
+ * planet file.
  *
  *
  **************************************************************/
