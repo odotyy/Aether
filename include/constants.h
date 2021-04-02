@@ -32,7 +32,7 @@ const float cNA = 6.02214086e23;
 const float cKB = 1.38064852e-23;
 
 // Universal Gas Constant (J/K/mol)
-onst float cR = cNA * cKB;
+const float cR = cNA * cKB;
 
 // Mass of a proton (kg)
 const float cMP = 1.6726219e-27;
