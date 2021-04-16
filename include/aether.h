@@ -19,7 +19,7 @@ using namespace arma;
 // Contains all information about time in the code and wall time:
 #include "times.h"
 
-// not done
+// Contains a reporting system for the model include verbose level and timing:
 #include "report.h"
 
 // not done
@@ -31,11 +31,11 @@ using namespace arma;
 // Needs to be eliminated (but not in this branch!)
 #include "sizes.h"
 
-// not done
+// These are functions that convert time between different systems.
 #include "time_conversion.h"
-// not done
+// Functions that assist in the reading of files.
 #include "file_input.h"
-// not done
+// A class for keeping track of indices (1d vectors w/time)
 #include "indices.h"
 // not done
 #include "read_f107_file.h"
