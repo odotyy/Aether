@@ -14,7 +14,6 @@
 // -----------------------------------------------------------------------------
 
 index_file_output_struct read_f107_file(std::string f107_file,
-                                        Indices indices,
                                         Report &report) {
 
   std::ifstream myFile;
@@ -56,7 +55,8 @@ index_file_output_struct read_f107_file(std::string f107_file,
 
       f107_contents.nVars = 1;
       f107_contents.var_names.push_back("F10.7");
-      f107_contents.index_id.push_back(indices.get_f107_index_id());
+      // This is not really needed, but initialize anyways:
+      f107_contents.index_id.push_back(-1);
       f107_contents.missing_values.push_back(1.0e32);
 
       std::string tmp;
