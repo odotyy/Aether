@@ -75,7 +75,6 @@ class Indices {
    **/
   Indices(Inputs args);
 
-
   /**************************************************************
    \brief get the daily f107 value at the given time
    \param time time in seconds

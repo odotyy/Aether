@@ -37,9 +37,9 @@ using namespace arma;
 #include "file_input.h"
 // A class for keeping track of indices (1d vectors w/time)
 #include "indices.h"
-// not done
-#include "read_f107_file.h"
-// not done
+// A set of routines to read in a number of different indices
+#include "read_indices_files.h"
+// A class for keeping track of all of the planetary characteristics
 #include "planets.h"
 // not done
 #include "grid.h"
