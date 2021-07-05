@@ -167,6 +167,8 @@ void Neutrals::calc_chapman(Grid grid, Report &report) {
       }
     }
 
+    species[iSpecies].rho_alt_int_scgc = integral3d * species[iSpecies].mass;
+    
     erfcy3d = (a + b * y3d) / (c + d*y3d + y3d % y3d);
     for (iLon = 0; iLon < nLons ; iLon++)
       for (iLat = 0; iLat < nLats ; iLat++)
