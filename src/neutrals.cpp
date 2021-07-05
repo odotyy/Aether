@@ -33,6 +33,8 @@ Neutrals::species_chars Neutrals::create_species(Grid grid) {
   tmp.density_scgc.ones();
   tmp.chapman_scgc.ones();
   tmp.scale_height_scgc.ones();
+  tmp.rho_alt_int_scgc.zeros();
+
   tmp.ionization_scgc.zeros();
 
   tmp.sources_scgc.set_size(nLons, nLats, nAlts);

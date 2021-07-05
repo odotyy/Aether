@@ -38,6 +38,7 @@ class Neutrals {
 
     // Some derived quantities:
     fcube chapman_scgc;
+    fcube rho_alt_int_scgc;
     fcube scale_height_scgc;
 
     // Sources and Losses:
@@ -54,6 +55,7 @@ class Neutrals {
   // bulk quantities (states):
 
   fcube density_scgc;
+  std::vector<fcube> velocity_vcgc;
   fcube temperature_scgc;
 
   fcube rho_scgc;
