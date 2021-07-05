@@ -21,11 +21,15 @@ CLASSES = \
 OBJECTS = \
 	add_sources.o\
 	advance.o\
+	aurora.o\
 	bfield.o\
 	calc_chemistry.o\
 	calc_chemical_sources.o\
 	calc_euv.o\
+	calc_grid_derived.o\
+	calc_ion_drift.o\
 	calc_neutral_derived.o\
+	collisions.o\
 	dipole.o\
 	file_input.o\
 	fill_grid.o\
@@ -39,8 +43,10 @@ OBJECTS = \
 	report.o\
 	solver_chemistry.o\
 	solver_conduction.o\
+	solver_gradients.o\
 	solver_interpolation.o\
 	time_conversion.o\
+	tools.o\
 	transform.o
 
 MAIN = \
