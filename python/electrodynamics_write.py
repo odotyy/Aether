@@ -344,7 +344,7 @@ def make_ion_aurora(mlts, lats, ae, ocflbBase, dst):
         dstp = 0.0
     
     # eflux is 0 mW/m2 + another 10 for every 200 nT change in Dst?
-    amp_eflux = 0.0 + Dst/100.0 * 10.0 # how brightness changes with Dst
+    amp_eflux = 0.0 + dstp/100.0 * 2.0 # how brightness changes with Dst
 
     # average energy is 40 keV + another 5 keV for every 200 nT change in Dst?
     amp_avee = 30.0 + dstp/200.0 * 5.0 # Aurora energy increases slightly
@@ -356,28 +356,31 @@ def make_ion_aurora(mlts, lats, ae, ocflbBase, dst):
     tau_eflux = 3.0 + dstp/200.0 # how the thickness of the aurora grows
     tau_avee = tau_eflux * 2.0
     
-    mltsR = mlts * np.pi / 12.0
+    mltsR = mlts* np.pi / 12.0
     r = 90.0 - lats
     t2d, r2d = np.meshgrid(mltsR, r)
 
-    eflux = amp_eflux * (np.cos(t2d)+2.0)/3.0
-    avee = amp_avee * (np.cos(t2d)+5.0)/6.0
+    offset = -3.0 * np.pi/12.0
+
+    eflux = amp_eflux * (np.cos(t2d-offset)+2.0)/3.0
+    avee = amp_avee * (np.cos(t2d-offset)+5.0)/6.0
 
     # this is the baseline electron stuff, so don't change
     tau_electron_eflux_mlts = tau_electron_eflux * (0.5 + 1.5 * (np.cos(mltsR)+1.0))/3.5
+    tau_ion_eflux_mlts = tau_eflux * (0.5 + 1.5 * (np.cos(mltsR-offset)+1.0))/3.5
 
     # shift equatorward
-    shift_mlts = -tau_electron_eflux * 2.0 - tau_eflux * 0.75
+    shift_mlts = -tau_electron_eflux_mlts * 1.5 - tau_ion_eflux_mlts * 0.75
     nLats = len(lats)
     tau = np.zeros(nLats)
     for i, ocflb in enumerate(ocflbBase):
-        tau_ef = tau_eflux_mlts[i]
-        shift = shift_mlts
+        tau_ef = tau_ion_eflux_mlts[i]
+        shift = shift_mlts[i]
         dist = lats - (ocflb + shift)
         # poleward of the center:
-        tau[dist >= 0.0] = tau_eflux_mlts[i] * 1.0
+        tau[dist >= 0.0] = tau_ion_eflux_mlts[i] * 1.0
         # equatorward of the center:
-        tau[dist < 0.0] = tau_eflux_mlts[i] * 1.0
+        tau[dist < 0.0] = tau_ion_eflux_mlts[i] * 1.0
         fac = np.exp(-abs(dist**4/tau**4))
         eflux[:,i] = eflux[:,i] * fac
 
@@ -691,17 +694,21 @@ data["hp"] = []
 data["cpcp"] = []
 
 hparray = []
+hpiarray = []
 bzarray = []
 byarray = []
 aearray = []
 
 data["Vars"] = ['Potential (kV)', \
-                'Total Energy Flux (ergs/cm2/s)', \
-                'Mean Energy (ergs)']
+                'Electron Energy Flux (ergs/cm2/s)', \
+                'Electron Mean Energy (keV)']
+if (ions):
+    data["Vars"].append('Ion Energy Flux (ergs/cm2/s)')
+    data["Vars"].append('Ion Mean Energy (keV)')
 
 data["nVars"] = len(data["Vars"])
 
-data["version"] = 1.2
+data["version"] = 1.3
 
 for var in data["Vars"]:
     data[var] = []
@@ -734,8 +741,8 @@ for i in np.arange(0,nTimes):
     hp = np.sum(power)/1.0e9 # In GW
 
     if (ions):
-        ionEflux2d, ionAvee2d = make_ion_aurora(mlts, lats, aeCurrent, ocflb, dst)
-        ionpower = ionEflux2d/1000.0 * area
+        ionEflux2d, ionAvee2d = make_ion_aurora(mlts, lats, aeCurrent, ocflb, dst[i])
+        ionPower = ionEflux2d/1000.0 * area
         ionHp = np.sum(ionPower)/1.0e9 # in GW
     else:
         ionHp = hp * 0.0
@@ -755,8 +762,9 @@ for i in np.arange(0,nTimes):
     data["ae"].append([al[i], au[i], ae[i], 0.0])
     aearray.append(ae[i])
     data["dst"].append([0.0, 0.0])
-    data["hp"].append([hp, 0.0])
+    data["hp"].append([hp, ionHp])
     hparray.append(hp)
+    hpiarray.append(ionHp)
     data["cpcp"].append((np.max(pot2d) - np.min(pot2d))/1000.0)
 
     cPot = data["Vars"][0]
@@ -767,6 +775,12 @@ for i in np.arange(0,nTimes):
     
     cAveE = data["Vars"][2]
     data[cAveE].append(avee2d)
+
+    if (ions):
+        cIonEFlux = data["Vars"][3]
+        data[cIonEFlux].append(ionEflux2d)
+        cIonAveE = data["Vars"][4]
+        data[cIonAveE].append(ionAvee2d)
 
 if (args["outfile"].find(".nc") > 0):
     # Write out in new netCDF format:
@@ -793,6 +807,8 @@ ax.set_xlim(data["times"][0],data["times"][-1])
 
 ax = fig.add_subplot(514)
 ax.plot(data["times"], hparray)
+if (ions):
+    ax.plot(data["times"], hpiarray)
 #ax.plot(times, zeros, 'k:')
 ax.set_ylabel('Hemispheric Power (GW)')
 ax.set_xlim(data["times"][0],data["times"][-1])
