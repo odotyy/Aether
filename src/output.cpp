@@ -197,11 +197,11 @@ int write_header(std::string file_name,
     iVar++;
     header << iVar << " Magnetic Local Time (hours)\n";
     iVar++;
-    header << iVar << " Beast (nT)\n";
+    header << iVar << " Beast (T)\n";
     iVar++;
-    header << iVar << " Bnorth (nT)\n";
+    header << iVar << " Bnorth (T)\n";
     iVar++;
-    header << iVar << " Bvertical (nT)\n";
+    header << iVar << " Bvertical (T)\n";
     iVar++;
   }
 
