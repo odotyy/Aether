@@ -25,8 +25,17 @@ def parse_args():
     parser.add_argument('-step', nargs=1, \
                         help='step in iterations to plot', \
                         default=5, type = int)
+    parser.add_argument('-color', nargs=1, \
+                        help='variable (number) to color contour', \
+                        default=1, type = int)
+    parser.add_argument('-line', nargs=1, \
+                        help='variable (number) to line contour', \
+                        default=0, type = int)
     parser.add_argument('-vars', \
                         help='list vars in file', \
+                        action="store_true")
+    parser.add_argument('-labels', \
+                        help='put labels on line contours', \
                         action="store_true")
     
     args = parser.parse_args()
@@ -49,6 +58,18 @@ di = args.step
 if (not np.isscalar(di)):
     di = di[0]
 
+iColor = args.color
+if (not np.isscalar(iColor)):
+    iColor = iColor[0]
+    
+iLine = args.line
+if (not np.isscalar(iLine)):
+    iLine = iLine[0]
+    
+iLabel = args.labels
+if (not np.isscalar(iLabel)):
+    iLabel = iLabel[0]
+    
 file = args.files[0]
 data = amie_read_binary(file)
 
@@ -58,7 +79,7 @@ vars = data["Vars"]
 
 if (args.vars):
     for i, v in enumerate(vars):
-        print(v)
+        print(i, v)
     exit()
 
 theta, r = np.meshgrid(mlts * np.pi/12.0 - np.pi/2.0, 90.0 - lats)
@@ -74,14 +95,17 @@ print(start, nTimes, di)
     
 ind = np.arange(start, nTimes, di)
 
-eflux3d = np.array(data[vars[1]])
-potential3d = np.array(data[vars[0]])
+eflux3d = np.array(data[vars[iColor]])
+potential3d = np.array(data[vars[iLine]])
 
 maxi = np.max(np.abs(eflux3d[ind]))
 mini = 0.0
 
 potmax = np.max(np.abs(potential3d[ind]))
-potmin = -potmax
+if (np.min(potential3d[ind]) < 0.0):
+    potmin = -potmax
+else:
+    potmin = 0.0
 
 dl = (potmax-potmin)/15.0
 levels = np.arange(potmin, potmax, dl)
@@ -108,7 +132,12 @@ for iT in ind:
 
     cax = ax.pcolor(theta, r, eflux2d, \
                     vmin = mini, vmax = maxi, cmap = cmap)
-    ax.contour(theta, r, pot2d, levels, colors = 'w')
+    CS = ax.contour(theta, r, pot2d, levels, colors = 'w')
+    smin = "Min : %.2f" % np.min(pot2d)
+    smax = "Max : %.2f" % np.max(pot2d)
+    print(smin, smax)
+    if (iLabel):
+        ax.clabel(CS, CS.levels)    
 
     xlabels = ['', '12', '18', '00']
     ylabels = ['80', '70', '60', '50']
