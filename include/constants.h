@@ -125,5 +125,10 @@ const float pcm3topm3 = 1e6;  // /cm3 to /m3
 const float pcm2topm2 = 1e4;  // /cm2 to /m2
 const float pcmtopm = 100.0;  // /cm to /m
 
+// -------------------------------------------------------------------------
+// B-Field
+// -------------------------------------------------------------------------
+
+const float cNTtoT = 1e-9;  // nT to T
 
 #endif  // INCLUDE_CONSTANTS_H_
