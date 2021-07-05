@@ -33,6 +33,11 @@ Ions::species_chars Ions::create_species(Grid grid) {
   tmp.losses_scgc.set_size(nLons, nLats, nAlts);
   tmp.losses_scgc.zeros();
 
+  tmp.par_velocity_vcgc = make_cube_vector(nLons, nLats, nAlts, 3);
+  tmp.perp_velocity_vcgc = make_cube_vector(nLons, nLats, nAlts, 3);
+
+  tmp.nu_ion_neutral_vcgc = make_cube_vector(nLons, nLats, nAlts, nSpecies);
+  
   return tmp;
 }
 
@@ -80,6 +85,10 @@ Ions::Ions(Grid grid, Inputs input, Report report) {
   eflux.zeros();
   avee.set_size(nLons, nLats);
   avee.zeros();
+
+  // Make vectors:
+  efield_vcgc = make_cube_vector(nLons, nLats, nAlts, 3);
+  exb_vcgc = make_cube_vector(nLons, nLats, nAlts, 3);
   
   // This gets a bunch of the species-dependent characteristics:
   int iErr = read_planet_file(input, report);

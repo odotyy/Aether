@@ -31,7 +31,7 @@ class Ions {
 
     int DoAdvect;
 
-    std::vector<float> nu_ion_neutral;
+    std::vector<float> nu_ion_neutral_coef;
     std::vector<bool> nu_is_resonant;
     std::vector<float> nu_ion_ion;
     std::vector<float> nu_ion_electron;
@@ -41,12 +41,14 @@ class Ions {
     std::vector<float> nu_in_res_coef2;
     std::vector<float> nu_in_res_tn_frac;
     std::vector<float> nu_in_res_ti_frac;
+
+    std::vector<fcube> nu_ion_neutral_vcgc;
     
     // Sources and Losses:
 
     fcube density_scgc;
-    fcube par_velocity_vcgc;
-    fcube perp_velocity_vcgc;
+    std::vector<fcube> par_velocity_vcgc;
+    std::vector<fcube> perp_velocity_vcgc;
 
     fcube temperature_scgc;
 
@@ -82,6 +84,13 @@ class Ions {
   int read_planet_file(Inputs input, Report report);
   void fill_electrons(Report &report);
   int get_species_id(std::string name, Report &report);
+  void calc_efield(Grid grid, Report &report);
+  void calc_exb_drift(Grid grid, Report &report);
+  void calc_ion_drift(Neutrals neutrals, Grid grid, Report &report);
+  void calc_ion_neutral_coll_freq(Neutrals neutrals, Report &report);
+  std::vector<fcube> calc_ion_electron_pressure_gradient(int64_t iIon,
+							 Grid grid,
+							 Report &report);
 
 };
 #endif  // INCLUDE_IONS_H_
