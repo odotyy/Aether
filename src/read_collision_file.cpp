@@ -73,8 +73,6 @@ void read_collision_file(Neutrals &neutrals,
 	}
       }
 
-
-
     }
     infile_ptr.close();
     check_collision_frequncies(ions, neutrals, report);
@@ -96,7 +94,7 @@ void check_collision_frequncies(Ions ions,
   if (report.test_verbose(0)) {
     std::cout << "nu_in table:\n";
     for (int iIon = 0; iIon < nIons; iIon++) {
-      if (ions.species[iIon].nu_ion_neutral.size() > 0) {
+      if (ions.species[iIon].nu_ion_neutral_coef.size() > 0) {
 	for (int iNeutral = 0; iNeutral < nSpecies; iNeutral++) {
 	  std::cout << ions.species[iIon].cName << " -> ";
 	  std::cout << neutrals.species[iNeutral].cName << " = ";
@@ -125,7 +123,8 @@ void check_collision_frequncies(Ions ions,
 	      }
 	    }
 	  } else {
-	    std::cout << ions.species[iIon].nu_ion_neutral[iNeutral] << "\n";
+	    std::cout << ions.species[iIon].nu_ion_neutral_coef[iNeutral]
+		      << "\n";
 	  }
 	}
       } else {
@@ -186,7 +185,7 @@ void parse_nu_in_table(std::vector<std::vector<std::string>> csv,
       // Make the array the right size, filling with zeros,
       // and setting resonant to false:
       for (int iNeutral = 0; iNeutral < nSpecies; iNeutral++) {
-	ions.species[iIon].nu_ion_neutral.push_back(0.0);
+	ions.species[iIon].nu_ion_neutral_coef.push_back(0.0);
 	ions.species[iIon].nu_is_resonant.push_back(false);
       }
       // Now go through all of the neutrals and see which we have:
@@ -206,7 +205,7 @@ void parse_nu_in_table(std::vector<std::vector<std::string>> csv,
 	      std::cout << "NONresonant!!! " << iIon << " "
 			<< iNeutralIds_[iCol-1] << " "
 			<< csv[iLine][iCol] << "\n";
-	    ions.species[iIon].nu_ion_neutral[iNeutralIds_[iCol-1]] =
+	    ions.species[iIon].nu_ion_neutral_coef[iNeutralIds_[iCol-1]] =
 	      stof(csv[iLine][iCol]) * coef;
 	  }
 	}
