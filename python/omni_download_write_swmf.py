@@ -5,6 +5,8 @@ import datetime as dt
 import numpy as np
 from omniweb import *
 import argparse
+import matplotlib.pyplot as plt
+import matplotlib.dates as dates
 
 # ----------------------------------------------------------------------
 # Function to parse input arguments
@@ -106,7 +108,8 @@ if (not np.isscalar(end)):
     end = end[0]
 
 results = download_omni_data(start, end, "-all")
-data = parse_omni_data(results)
+omniDirty = parse_omni_data(results)
+data = clean_omni(omniDirty)
 
 if (args.swmf):
     fileout = data["times"][0].strftime('imf%Y%m%d.dat')
@@ -115,3 +118,60 @@ else:
     fileout = data["times"][0].strftime('omni_%Y%m%d.txt')
     write_omni_file(results, fileout)
     
+fig = plt.figure(figsize = (10,10))
+zeros = np.array(data["bz"]) * 0.0
+
+ax = fig.add_subplot(511)
+ax.plot(data["times"], data["bz"])
+ax.plot(data["times"], zeros, 'k:')
+ax.set_ylabel('IMF Bz (nT)')
+ax.set_xlim(data["times"][0],data["times"][-1])
+
+ax = fig.add_subplot(512)
+ax.plot(data["times"], data["by"])
+ax.plot(data["times"], zeros, 'k:')
+ax.set_ylabel('IMF By (nT)')
+ax.set_xlim(data["times"][0],data["times"][-1])
+
+ax = fig.add_subplot(513)
+ax.plot(data["times"], data["vx"])
+ax.set_ylabel('SW Vx (km/s)')
+ax.set_xlim(data["times"][0], data["times"][-1])
+
+ax = fig.add_subplot(514)
+ax.plot(data["times"], data["n"])
+ax.set_ylabel('SW N (/cm3)')
+ax.set_xlim(data["times"][0], data["times"][-1])
+
+vx = np.array(data["vx"])
+vy = np.array(data["vy"])
+vz = np.array(data["vz"])
+
+v = np.sqrt(vx*vx + vy*vy + vz*vz) * 1000.0
+
+bx = np.array(data["bx"])
+by = np.array(data["by"])
+bz = np.array(data["bz"])
+
+b = np.sqrt(bx*bx + by*by + bz*bz) / 1.0e9
+
+n = np.array(data["n"]) * 1e6
+
+mp = 1.67e-27
+
+mu0 = 1.256e-6
+
+ca = b / np.sqrt(mu0 * n * mp)
+ma = v / ca
+
+ax = fig.add_subplot(515)
+ax.plot(data["times"], ma)
+ax.set_ylabel('SW Ma')
+ax.set_xlim(data["times"][0], data["times"][-1])
+ax.set_ylim(0.0, 20.0)
+
+
+
+plotfile = data["times"][0].strftime('imf%Y%m%d.png')
+fig.savefig(plotfile)
+plt.close()
