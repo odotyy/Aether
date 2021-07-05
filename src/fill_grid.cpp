@@ -133,7 +133,7 @@ void Grid::calc_mlt(Report &report) {
     dx = GSE_XYZ_vcgc[0].slice(iZ) - x_blend;
     dy = GSE_XYZ_vcgc[1].slice(iZ) - y_blend;
 
-    mlt = (atan2(dy, dx) + cTWOPI) / cPI * 12.0;
+    mlt = (atan2(dy, dx) + cTWOPI) / cPI * 12.0 + 12.0;
     magLocalTime_scgc.slice(iZ) = mlt - 24.0 * floor(mlt/24.0);
   }
 
@@ -154,6 +154,8 @@ void Grid::fill_grid_bfield(Planets planet, Inputs input, Report &report) {
   float lon, lat, alt;
   bfield_info_type bfield_info;
 
+  bfield_mag_scgc.zeros();
+
   for (iLon = 0; iLon < nLons; iLon++) {
     for (iLat = 0; iLat < nLats; iLat++) {
       for (iAlt = 0; iAlt < nAlts; iAlt++) {
@@ -167,11 +169,20 @@ void Grid::fill_grid_bfield(Planets planet, Inputs input, Report &report) {
         magLat_scgc(iLon, iLat, iAlt) = bfield_info.lat;
         magLon_scgc(iLon, iLat, iAlt) = bfield_info.lon;
 
-        for (iDim = 0; iDim < 3; iDim++)
-          bfield_vcgc[iDim](iLon, iLat, iAlt) = bfield_info.b[iDim];
+        for (iDim = 0; iDim < 3; iDim++) {
+          bfield_vcgc[iDim](iLon, iLat, iAlt) = bfield_info.b[iDim] * cNTtoT;
+          bfield_mag_scgc(iLon, iLat, iAlt) =
+	    bfield_mag_scgc(iLon, iLat, iAlt) +
+	    bfield_info.b[iDim] * bfield_info.b[iDim];
+	}
+	bfield_mag_scgc(iLon, iLat, iAlt) =
+	  sqrt(bfield_mag_scgc(iLon, iLat, iAlt));
       }
     }
   }
+  for (iDim = 0; iDim < 3; iDim++) 
+    bfield_unit_vcgc[iDim] = bfield_vcgc[iDim] / (bfield_mag_scgc + 1e-6);
+  
   int IsNorth = 1, IsSouth = 0;
   mag_pole_north_ll = get_magnetic_pole(IsNorth, planet, input, report);
   mag_pole_south_ll = get_magnetic_pole(IsSouth, planet, input, report);
@@ -216,13 +227,13 @@ void Grid::fill_grid_radius(Planets planet, Report &report) {
 
 void Grid::fill_grid(Planets planet, Report &report) {
 
-  int64_t iAlt;
+  int64_t iLon, iLat, iAlt;
 
   report.print(3, "starting fill_grid");
 
   for (iAlt = 1; iAlt < nAlts-1; iAlt++) {
     dalt_center_scgc.slice(iAlt) =
-      geoAlt_scgc.slice(iAlt+1) - geoAlt_scgc.slice(iAlt-1);
+      (geoAlt_scgc.slice(iAlt+1) - geoAlt_scgc.slice(iAlt-1))/2.0;
     dalt_lower_scgc.slice(iAlt) =
       geoAlt_scgc.slice(iAlt) - geoAlt_scgc.slice(iAlt-1);
   }
@@ -234,6 +245,60 @@ void Grid::fill_grid(Planets planet, Report &report) {
   dalt_lower_scgc.slice(iAlt) =
     geoAlt_scgc.slice(iAlt) - geoAlt_scgc.slice(iAlt-1);
 
+  // For a stretched grid, calculate some useful quantities:
+  // lower is defined for the current cell, which
+  // means that upper(iAlt) is lower(iAlt+1)
+  // ratio = upper / lower
+  for (iAlt = 0; iAlt < nAlts-1; iAlt++)
+    dalt_ratio_scgc.slice(iAlt) =
+      dalt_lower_scgc.slice(iAlt+1) / dalt_lower_scgc.slice(iAlt);
+  iAlt = nAlts-1;
+  dalt_ratio_scgc.slice(iAlt) = dalt_ratio_scgc.slice(iAlt-1);
+
+  // Need the square of the ratio:
+  dalt_ratio_sq_scgc = dalt_ratio_scgc % dalt_ratio_scgc;
+
+  // ---------------------------------------
+  // Grid spacing for latitude:
+  // ---------------------------------------
+  
+  for (iLat = 1; iLat < nLats-1; iLat++) {
+    dlat_center_scgc.col(iLat) =
+      (geoLat_scgc.col(iLat+1) - geoLat_scgc.col(iLat-1))/2.0;
+  }
+  // Bottom (one sided):
+  iLat = 0;
+  dlat_center_scgc.col(iLat) =
+    geoLat_scgc.col(iLat+1) - geoLat_scgc.col(iLat);
+  // Top (one sided):
+  iLat = nLats-1;
+  dlat_center_scgc.col(iLat) =
+    geoLat_scgc.col(iLat) - geoLat_scgc.col(iLat-1);
+
+  // Make this into a distance:
+  dlat_center_dist_scgc = dlat_center_scgc % radius_scgc;
+  
+  // ---------------------------------------
+  // Grid spacing for longitude:
+  // ---------------------------------------
+  
+  for (iLon = 1; iLon < nLons-1; iLon++)
+    dlon_center_scgc.row(iLon) =
+      (geoLon_scgc.row(iLon+1) - geoLon_scgc.row(iLon-1))/2.0;
+
+  // Bottom (one sided):
+  iLon = 0;
+  dlon_center_scgc.row(iLon) =
+    geoLon_scgc.row(iLon+1) - geoLon_scgc.row(iLon);
+  // Top (one sided):
+  iLon = nLons-1;
+  dlon_center_scgc.row(iLon) =
+    geoLon_scgc.row(iLon) - geoLon_scgc.row(iLon-1);
+
+  // Make this into a distance:
+  dlon_center_dist_scgc =
+    dlon_center_scgc % radius_scgc % abs(cos(geoLat_scgc));
+  
   std::vector<fcube> lon_lat_radius;
   lon_lat_radius.push_back(geoLon_scgc);
   lon_lat_radius.push_back(geoLat_scgc);
