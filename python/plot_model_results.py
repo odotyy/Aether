@@ -146,10 +146,12 @@ def get_args(argv):
                 m = re.match(r'(.*)bin',arg)
                 if m:
                     IsGitm = 1
+                    HasHeader = 0
                     # check for a header file:
                     checkFile = glob(m.group(1)+"header")
-                    if (len(checkFile[0]) > 1):
-                        HasHeader = 1
+                    if (len(checkFile) > 0):
+                        if (len(checkFile[0]) > 1):
+                            HasHeader = 1
                 else:
                     IsGitm = 0
 
