@@ -41,21 +41,24 @@ Grid::Grid(int nX_in, int nY_in, int nZ_in, int nGCs_in) {
 
   dalt_center_scgc.set_size(nX, nY, nZ);
   dalt_lower_scgc.set_size(nX, nY, nZ);
+  dalt_ratio_scgc.set_size(nX, nY, nZ);
+  dalt_ratio_sq_scgc.set_size(nX, nY, nZ);
 
+  dlat_center_scgc.set_size(nX, nY, nZ);
+  dlat_center_dist_scgc.set_size(nX, nY, nZ);
+
+  dlon_center_scgc.set_size(nX, nY, nZ);
+  dlon_center_dist_scgc.set_size(nX, nY, nZ);
+  
   sza_scgc.set_size(nX, nY, nZ);
   cos_sza_scgc.set_size(nX, nY, nZ);
 
-  fcube tmp(nX, nY, nZ);
-  tmp.zeros();
-  bfield_vcgc.push_back(tmp);  // x-component
-  bfield_vcgc.push_back(tmp);  // y-component
-  bfield_vcgc.push_back(tmp);  // z-component
+  bfield_vcgc = make_cube_vector(nX, nY, nZ, 3);
+  bfield_unit_vcgc = make_cube_vector(nX, nY, nZ, 3);
   bfield_mag_scgc.set_size(nX, nY, nZ);
   bfield_mag_scgc.zeros();
 
-  GSE_XYZ_vcgc.push_back(tmp);  // x-component
-  GSE_XYZ_vcgc.push_back(tmp);  // y-component
-  GSE_XYZ_vcgc.push_back(tmp);  // z-component
+  GSE_XYZ_vcgc = make_cube_vector(nX, nY, nZ, 3);
 
   mag_pole_north_ll.set_size(2);
   mag_pole_south_ll.set_size(2);
