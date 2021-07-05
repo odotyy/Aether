@@ -28,6 +28,7 @@ using namespace arma;
 
 #include "electrodynamics.h"
 
+#include "aurora.h"
 #include "euv.h"
 #include "calc_euv.h"
 #include "chemistry.h"
@@ -36,6 +37,9 @@ using namespace arma;
 #include "advance.h"
 
 #include "solvers.h"
+#include "tools.h"
 #include "transform.h"
+
+#include "calc_grid_derived.h"
 
 #endif  // INCLUDE_AETHER_H_
