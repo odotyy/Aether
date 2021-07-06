@@ -22,7 +22,7 @@ Ions::species_chars Ions::create_species(Grid grid) {
   tmp.DoAdvect = 0;
 
   tmp.density_scgc.set_size(nLons, nLats, nAlts);
-  tmp.density_scgc.ones();
+  tmp.density_scgc.fill(1e10);
   tmp.temperature_scgc.set_size(nLons, nLats, nAlts);
   tmp.temperature_scgc.ones();
   tmp.ionization_scgc.set_size(nLons, nLats, nAlts);
@@ -204,7 +204,7 @@ int Ions::get_species_id(std::string name, Report &report) {
         break;
       }
   }
-
+  report.exit(function);
   return id_;
 }
   
