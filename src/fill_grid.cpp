@@ -156,37 +156,42 @@ void Grid::fill_grid_bfield(Planets planet, Inputs input, Report &report) {
 
   bfield_mag_scgc.zeros();
 
-  for (iLon = 0; iLon < nLons; iLon++) {
-    for (iLat = 0; iLat < nLats; iLat++) {
-      for (iAlt = 0; iAlt < nAlts; iAlt++) {
+  if (abs(planet.get_dipole_strength()) > 0) {
+    HasBField = 1;
+  
+    for (iLon = 0; iLon < nLons; iLon++) {
+      for (iLat = 0; iLat < nLats; iLat++) {
+	for (iAlt = 0; iAlt < nAlts; iAlt++) {
 
-        lon = geoLon_scgc(iLon, iLat, iAlt);
-        lat = geoLat_scgc(iLon, iLat, iAlt);
-        alt = geoAlt_scgc(iLon, iLat, iAlt);
+	  lon = geoLon_scgc(iLon, iLat, iAlt);
+	  lat = geoLat_scgc(iLon, iLat, iAlt);
+	  alt = geoAlt_scgc(iLon, iLat, iAlt);
 
-        bfield_info = get_bfield(lon, lat, alt, planet, input, report);
+	  bfield_info = get_bfield(lon, lat, alt, planet, input, report);
 
-        magLat_scgc(iLon, iLat, iAlt) = bfield_info.lat;
-        magLon_scgc(iLon, iLat, iAlt) = bfield_info.lon;
+	  magLat_scgc(iLon, iLat, iAlt) = bfield_info.lat;
+	  magLon_scgc(iLon, iLat, iAlt) = bfield_info.lon;
 
-        for (iDim = 0; iDim < 3; iDim++) {
-          bfield_vcgc[iDim](iLon, iLat, iAlt) = bfield_info.b[iDim] * cNTtoT;
-          bfield_mag_scgc(iLon, iLat, iAlt) =
-	    bfield_mag_scgc(iLon, iLat, iAlt) +
-	    bfield_info.b[iDim] * bfield_info.b[iDim];
+	  bfield_mag_scgc(iLon, iLat, iAlt) = 0.0;
+	  for (iDim = 0; iDim < 3; iDim++) {
+	    bfield_vcgc[iDim](iLon, iLat, iAlt) = bfield_info.b[iDim] * cNTtoT;
+	    bfield_mag_scgc(iLon, iLat, iAlt) =
+	      bfield_mag_scgc(iLon, iLat, iAlt) +
+	      bfield_vcgc[iDim](iLon, iLat, iAlt) * bfield_vcgc[iDim](iLon, iLat, iAlt);
+	  }
+	  bfield_mag_scgc(iLon, iLat, iAlt) =
+	    sqrt(bfield_mag_scgc(iLon, iLat, iAlt));
 	}
-	bfield_mag_scgc(iLon, iLat, iAlt) =
-	  sqrt(bfield_mag_scgc(iLon, iLat, iAlt));
       }
     }
-  }
-  for (iDim = 0; iDim < 3; iDim++) 
-    bfield_unit_vcgc[iDim] = bfield_vcgc[iDim] / (bfield_mag_scgc + 1e-6);
+    for (iDim = 0; iDim < 3; iDim++) 
+      bfield_unit_vcgc[iDim] = bfield_vcgc[iDim] / (bfield_mag_scgc + 1e-32);
   
-  int IsNorth = 1, IsSouth = 0;
-  mag_pole_north_ll = get_magnetic_pole(IsNorth, planet, input, report);
-  mag_pole_south_ll = get_magnetic_pole(IsSouth, planet, input, report);
-
+    int IsNorth = 1, IsSouth = 0;
+    mag_pole_north_ll = get_magnetic_pole(IsNorth, planet, input, report);
+    mag_pole_south_ll = get_magnetic_pole(IsSouth, planet, input, report);
+  }
+  
   report.exit(function);
   return;
 }

@@ -13,6 +13,7 @@ class Grid {
 public:
 
   int get_IsGeoGrid();
+  bool get_HasBField();
   void set_IsGeoGrid(int value);
 
   int64_t get_nPointsInGrid();
@@ -101,6 +102,7 @@ public:
  private:
 
   int IsGeoGrid;
+  bool HasBField;
 
   int64_t nX, nLons;
   int64_t nY, nLats;
