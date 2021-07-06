@@ -1,8 +1,6 @@
 // Copyright 2020, the Aether Development Team (see doc/dev_team.md for members)
 // Full license can be found in License.md
 
-#include <iostream>
-
 #include "../include/aether.h"
 
 // --------------------------------------------------------------------------
@@ -57,7 +55,7 @@ std::vector<fcube> Ions::calc_ion_electron_pressure_gradient(int64_t iIon,
     cKB;
 
   pressure_gradient_vcgc = calc_gradient_vector(total_pressure_scgc, grid);
-
+  
   return pressure_gradient_vcgc;
 }
   
@@ -65,32 +63,39 @@ std::vector<fcube> Ions::calc_ion_electron_pressure_gradient(int64_t iIon,
 // Calculate the ion drift
 // --------------------------------------------------------------------------
 
-void Ions::calc_ion_drift(Neutrals neutrals, Grid grid, Report &report) {
+void Ions::calc_ion_drift(Neutrals neutrals, Grid grid, float dt, Report &report) {
+
+  std::string function = "Ions::calc_ion_drift";
+  static int iFunction = -1;
+  report.enter(function, iFunction);
 
   int64_t nX = grid.get_nX();
   int64_t nY = grid.get_nY();
   int64_t nZ = grid.get_nZ();
   
+  report.print(5, "going into calc_efield");
   calc_efield(grid, report);
 
   // This is for the electron drift motion:
+  report.print(5, "going into calc_exb_drift");
   calc_exb_drift(grid, report);
   
   std::vector<fcube> gravity_vcgc = make_cube_vector(nX, nY, nZ, 3);
   std::vector<fcube> wind_forcing = make_cube_vector(nX, nY, nZ, 3);
   std::vector<fcube> total_forcing = make_cube_vector(nX, nY, nZ, 3);
   
-  // This is assuming that the 3rd dim is radial.
-  // Want actual gravity for 3rd dim
-  // (negative is due to gravity being positive for some reason):
-  gravity_vcgc[2] = -grid.gravity_scgc;
-
+  report.print(5, "going into collision frequencies");
   calc_ion_neutral_coll_freq(neutrals, report);
 
   int64_t iIon, iNeutral;
 
   std::vector<fcube> grad_Pi_plus_Pe;
-  fcube rho, rho_nuin;
+  fcube rho, rho_nuin, nuin_sum;
+
+  nuin_sum.set_size(nX, nY, nZ);
+  nuin_sum.zeros();
+  
+  fill_electrons(report);
   
   for (iIon = 0; iIon < nIons; iIon++) {
 
@@ -98,33 +103,64 @@ void Ions::calc_ion_drift(Neutrals neutrals, Grid grid, Report &report) {
     rho = species[iIon].mass * species[iIon].density_scgc;
 
     // Get gradient in pressure:
-    grad_Pi_plus_Pe = calc_ion_electron_pressure_gradient(iIon,
-							  grid,
-							  report);
+    report.print(5, "going into pressure gradient");
+    grad_Pi_plus_Pe = calc_ion_electron_pressure_gradient(iIon, grid, report);
 
-    // Continue assumption about gravity...
+    // This is assuming that the 3rd dim is radial.
+    // Want actual gravity for 3rd dim
+    // (negative is due to gravity being positive for some reason):
     gravity_vcgc[2] = -grid.gravity_scgc % rho;
 
     // Neutral Wind Forcing:
+    report.print(5, "neutral winds");
     for (int64_t iComp = 0; iComp < 3; iComp++)
       wind_forcing[iComp].zeros();
     for (iNeutral = 0; iNeutral < nSpecies; iNeutral++) {
       rho_nuin = rho % species[iIon].nu_ion_neutral_vcgc[iNeutral];
-      for (int64_t iComp = 0; iComp < 3; iComp++)
+      nuin_sum = nuin_sum + species[iIon].nu_ion_neutral_vcgc[iNeutral];
+      for (int64_t iComp = 0; iComp < 3; iComp++) {
 	wind_forcing[iComp] = wind_forcing[iComp] +
 	  rho_nuin % neutrals.velocity_vcgc[iComp];
+      }
     }
 
     // Total Forcing (sum everything - this is A_s):
     for (int64_t iComp = 0; iComp < 3; iComp++) {
       total_forcing[iComp] =
-	- grad_Pi_plus_Pe[iComp]
+        - grad_Pi_plus_Pe[iComp]
 	+ gravity_vcgc[iComp]
 	+ wind_forcing[iComp];
     }
+
+    std::vector<fcube> a_par = make_cube_vector(nX, nY, nZ, 3);
+    if (grid.get_HasBField()) {
+      fcube a_dot_b = dot_product(total_forcing, grid.bfield_unit_vcgc);
+      for (int64_t iComp = 0; iComp < 3; iComp++) {
+	a_par[iComp] = a_dot_b % grid.bfield_unit_vcgc[iComp];
+	// Steady state:
+	species[iIon].par_velocity_vcgc[iComp] =
+	  a_par[iComp] / rho / nuin_sum;
+	// implicit time-step
+	//(species[iIon].par_velocity_vcgc[iComp] + a_par[iComp] * dt / rho) /
+	//(1 + nuin_sum * dt);
+      }
+    } else {
+      for (int64_t iComp = 0; iComp < 3; iComp++) {
+	a_par[iComp] = total_forcing[iComp];
+	// Steady state:
+	species[iIon].par_velocity_vcgc[iComp] =
+	  a_par[iComp] / rho / nuin_sum;
+	// implicit time-step
+	//species[iIon].par_velocity_vcgc[iComp] = 
+	//  (species[iIon].par_velocity_vcgc[iComp] + a_par[iComp] * dt / rho) /
+	//  (1 + nuin_sum * dt);
+      }
+    }      
     
   }  
 
+  report.exit(function);
+  return;
 }
 
 
