@@ -86,11 +86,11 @@ class Ions {
   int get_species_id(std::string name, Report &report);
   void calc_efield(Grid grid, Report &report);
   void calc_exb_drift(Grid grid, Report &report);
-  void calc_ion_drift(Neutrals neutrals, Grid grid, Report &report);
+  void calc_ion_drift(Neutrals neutrals, Grid grid, float dt, Report &report);
   void calc_ion_neutral_coll_freq(Neutrals neutrals, Report &report);
   std::vector<fcube> calc_ion_electron_pressure_gradient(int64_t iIon,
 							 Grid grid,
 							 Report &report);
-
+  void calc_ion_temperature(Neutrals neutrals, Grid grid, Report &report);
 };
 #endif  // INCLUDE_IONS_H_
