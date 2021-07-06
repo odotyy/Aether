@@ -63,6 +63,8 @@ void Report::enter(std::string input, int &iFunction) {
   entries[iEntry].iLevel = iLevel;
   iCurrentFunction = iEntry;
 
+  // Sometimes it is good to uncomment this line and see what is happening:
+  //std::cout << "iLevel : " << iLevel << " " << current_entry << "\n";
   print(iLevel, "Entering function : " + current_entry);
 }
 
