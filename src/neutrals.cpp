@@ -76,6 +76,7 @@ Neutrals::Neutrals(Grid grid, Inputs input, Report report) {
 
   rho_scgc.set_size(nLons, nLats, nAlts);
   rho_scgc.ones();
+  velocity_vcgc = make_cube_vector(nLons, nLats, nAlts, 3);
   mean_major_mass_scgc.set_size(nLons, nLats, nAlts);
   mean_major_mass_scgc.ones();
   pressure_scgc.set_size(nLons, nLats, nAlts);
@@ -343,7 +344,7 @@ int Neutrals::get_species_id(std::string name, Report &report) {
         break;
       }
   }
-
+  report.exit(function);  
   return id_;
 }
   
