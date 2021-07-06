@@ -28,6 +28,7 @@ OBJECTS = \
 	calc_euv.o\
 	calc_grid_derived.o\
 	calc_ion_drift.o\
+	calc_ion_temperature.o\
 	calc_neutral_derived.o\
 	collisions.o\
 	dipole.o\
