@@ -74,6 +74,7 @@ Grid::Grid(int nX_in, int nY_in, int nZ_in, int nGCs_in) {
   mag_pole_south_gse.push_back(tmp_col);
   mag_pole_south_gse.push_back(tmp_col);
 
+  HasBField = 0;
 }
 
 // --------------------------------------------------------------------------
@@ -82,6 +83,14 @@ Grid::Grid(int nX_in, int nY_in, int nZ_in, int nGCs_in) {
 
 int Grid::get_IsGeoGrid() {
   return IsGeoGrid;
+}
+
+// --------------------------------------------------------------------------
+// Get whether the grid is a geographic grid (or magnetic - return 0)
+// --------------------------------------------------------------------------
+
+bool Grid::get_HasBField() {
+  return HasBField;
 }
 
 // --------------------------------------------------------------------------
