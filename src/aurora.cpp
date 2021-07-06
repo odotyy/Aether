@@ -33,9 +33,7 @@ fvec calculate_fang(float eflux,  // in ergs/cm2/s
     static int iFunction = -1;
     report.enter(function, iFunction);
 
-    //std::cout<<"eflux: "<<eflux<<", avee: "<<avee<<std::endl;
     float de = 0.035;  // keV
-
     float char_e = avee / 2;  // keV
     long double Q0 = eflux * 6.242e11;   // eV/cm2/s 
     float E0 = char_e * 1000;  // eV
@@ -44,25 +42,14 @@ fvec calculate_fang(float eflux,  // in ergs/cm2/s
     long double flux_max = a * Ebin * exp(-Ebin / E0);  //  /cm2/s/eV
     long double QE = flux_max * Ebin * dE; //  eV/cm2/s
 
-    //std::cout<<" Ebin: "<<Ebin<<std::endl;
-    //std::cout<<" final flux for calculations: "<<QE<<std::endl;
-    //std::cout<<" dE: "<<dE<<std::endl;
-    //std::cout<<"QE: "<<QE<<std::endl;
-
-    // !!!!! ebin and QE in keV !!!!!! /1000 or not like in pyhton code?
-    long double E_keV = Ebin / 1000.0;
-    long double Q_keV = QE / 1000.0;
+    long double E_keV = Ebin / 1000.0;   // Convert to keV
+    long double Q_keV = QE / 1000.0;   // Convert to keV
 
     fvec yE = (2.0/E_keV) * pow( (rhoH / (6e-6)), 0.7);
-    //std::cout<<" yE: "<<std::endl;
-    //yE.raw_print();
-
     fvec fyE =
       (Ci[0] * pow(yE, Ci[1])) % exp((-Ci[2] * pow(yE, Ci[3]))) + 
       (Ci[4] * pow(yE, Ci[5])) % exp((-Ci[6] * pow(yE, Ci[7])));
-
     fvec fac = Q_keV / de / H; 
-
     fvec qtot = fyE % fac; 
     
     report.exit(function);
