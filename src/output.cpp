@@ -79,6 +79,9 @@ int write_binary_all_3d(std::string file_name,
       type_output == "states") {
     for (int iSpecies=0; iSpecies < nIons+1; iSpecies++) 
       output_variable_3d(binary, ions.species[iSpecies].density_scgc);
+    for (int iSpecies=0; iSpecies < nIons+1; iSpecies++) 
+      for (int iComp=0; iComp < 3; iComp++) 
+	output_variable_3d(binary, ions.species[iSpecies].par_velocity_vcgc[iComp]);
     output_variable_3d(binary, ions.potential_scgc);
   }
 
@@ -125,8 +128,8 @@ int write_header(std::string file_name,
 
   if (type_output == "ions" ||
       type_output == "states")
-    // All ions, electrons, potential:
-    nVars = nVars + nIons + 1 + 1;
+    // All ions, electrons, velocities, potential:
+    nVars = nVars + nIons + 1 + nIons*3 + 1;
   
   if (type_output == "bfield")
     nVars = nVars + 6;
@@ -178,13 +181,28 @@ int write_header(std::string file_name,
 
   if (type_output == "ions" ||
       type_output == "states") {
-    
+
+    // Densities
     for (int iSpecies=0; iSpecies < nIons+1; iSpecies++) {
       header << iVar << " "
 	     << ions.species[iSpecies].cName << " "
 	     << neutrals.density_unit << "\n";
       iVar++;
     }
+
+    // Velocities
+    for (int iSpecies=0; iSpecies < nIons; iSpecies++) {
+      header << iVar << " Vparx (" << ions.species[iSpecies].cName << ") "
+	     << " (m/s) \n";
+      iVar++;
+      header << iVar << " Vpary (" << ions.species[iSpecies].cName << ") "
+	     << " (m/s) \n";
+      iVar++;
+      header << iVar << " Vparz (" << ions.species[iSpecies].cName << ") "
+	     << " (m/s) \n";
+      iVar++;
+    }
+
     header << iVar << " Potential (V)\n";
     iVar++;
 
