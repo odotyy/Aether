@@ -14,7 +14,6 @@ std::vector<fcube> calc_gradient_vector(fcube value_scgc, Grid grid) {
   gradient_vcgc.push_back(calc_gradient_lon(value_scgc, grid));
   gradient_vcgc.push_back(calc_gradient_lat(value_scgc, grid));
   gradient_vcgc.push_back(calc_gradient_alt(value_scgc, grid));
-
   return gradient_vcgc;
 }
 
@@ -36,7 +35,7 @@ fcube calc_gradient_lon(fcube value, Grid grid) {
   for (iLon = 1; iLon < nLons-1; iLon++)
     gradient.row(iLon) =
       (value.row(iLon+1) - value.row(iLon-1)) /
-      grid.dlon_center_dist_scgc.row(iLon);
+      (2 * grid.dlon_center_dist_scgc.row(iLon));
 
   // Lower (one sided):
   iLon = 0;
@@ -71,7 +70,7 @@ fcube calc_gradient_lat(fcube value, Grid grid) {
   for (iLat = 1; iLat < nLats-1; iLat++)
     gradient.col(iLat) =
       (value.col(iLat+1) - value.col(iLat-1)) /
-      grid.dlat_center_dist_scgc.col(iLat);
+      (2 * grid.dlat_center_dist_scgc.col(iLat));
 
   // Lower (one sided):
   iLat = 0;
