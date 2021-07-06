@@ -49,18 +49,21 @@ int advance(Planets &planet,
   gGrid.calc_sza(planet, time, report);
   gGrid.calc_gse(planet, time, report);
   gGrid.calc_mlt(report);
-  auto electrodynamics_values = electrodynamics.get_electrodynamics(gGrid.magLat_scgc,
-								    gGrid.magLocalTime_scgc,
-								    report);
+  auto electrodynamics_values =
+    electrodynamics.get_electrodynamics(gGrid.magLat_scgc,
+					gGrid.magLocalTime_scgc,
+					report);
   ions.potential_scgc = std::get<0>(electrodynamics_values);
   ions.eflux = std::get<1>(electrodynamics_values);
   ions.avee = std::get<2>(electrodynamics_values);
+  ions.calc_ion_drift(neutrals, gGrid, time.get_dt(), report);
 
+  calc_aurora(gGrid, neutrals, ions, report);
+  
   neutrals.calc_conduction(gGrid, time, report);
-
-  neutrals.add_sources(time, report);
-
   chemistry.calc_chemistry(neutrals, ions, time, gGrid, report);
+  neutrals.add_sources(time, report);
+  ions.calc_ion_temperature(neutrals, gGrid, report);
 
   neutrals.set_bcs(report);
   neutrals.fill_with_hydrostatic(gGrid, report);
