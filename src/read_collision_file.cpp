@@ -42,7 +42,7 @@ void read_collision_file(Neutrals &neutrals,
       // ---------------------------
 
       hash = find_next_hash(infile_ptr);
-      if (report.test_verbose(0))
+      if (report.test_verbose(2))
         std::cout << "hash : -->" << hash << "<--\n";
 
       // ---------------------------
@@ -50,7 +50,6 @@ void read_collision_file(Neutrals &neutrals,
       // ---------------------------
 
       if (hash == "#nu_in") {
-	std::cout << "Reading #nu_in\n";
         std::vector<std::vector<std::string>> csv = read_csv(infile_ptr);
         if (csv.size() > 1) {
 	  parse_nu_in_table(csv, neutrals, ions, report);
@@ -64,7 +63,6 @@ void read_collision_file(Neutrals &neutrals,
       // ---------------------------
 
       if (hash == "#resonant_nu_in") {
-	std::cout << "Reading #resonant_nu_in\n";
         std::vector<std::vector<std::string>> csv = read_csv(infile_ptr);
         if (csv.size() > 1) {
 	  parse_resonant_nu_in_table(csv, neutrals, ions, report);
@@ -91,7 +89,7 @@ void check_collision_frequncies(Ions ions,
 
   // Report out the table, if verbose is high enough:
   
-  if (report.test_verbose(0)) {
+  if (report.test_verbose(2)) {
     std::cout << "nu_in table:\n";
     for (int iIon = 0; iIon < nIons; iIon++) {
       if (ions.species[iIon].nu_ion_neutral_coef.size() > 0) {
@@ -279,6 +277,7 @@ void parse_resonant_nu_in_table(std::vector<std::vector<std::string>> csv,
       }
     }
   }
+  report.exit(function);
   return;
 }
     
