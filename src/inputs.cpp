@@ -89,6 +89,18 @@ std::string Inputs::get_euv_model() {
 }
 
 // -----------------------------------------------------------------------
+// Return the seed used to perturb
+// -----------------------------------------------------------------------
+
+int Inputs::get_seed() {
+  return seed_input;
+}
+
+int Inputs::do_seed() {
+  return SetSeedManually;
+}
+
+// -----------------------------------------------------------------------
 // Return the heating efficiency of the neutrals for EUV
 // -----------------------------------------------------------------------
 
@@ -230,4 +242,5 @@ std::string Inputs::get_planet_species_file() {
 std::string Inputs::get_output_directory() {
   return output_directory;
 }
+
 

@@ -139,6 +139,15 @@ int Inputs::read(Times &time, Report &report) {
       }
 
       // ---------------------------
+      // #USESEED
+      // ---------------------------
+
+      if (hash == "#seed") {
+        SetSeedManually = read_int(infile_ptr, hash);
+        seed_input = read_int(infile_ptr, hash);
+      }
+
+      // ---------------------------
       // #omniweb
       // This can actually be called multiple times:
       // ---------------------------

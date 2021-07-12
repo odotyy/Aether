@@ -299,21 +299,25 @@ int Indices::get_al_index_id() { return iAL_; }
 
 // --------------------------------------------------------------------
 // This function will perturb the inputed data array an amount determined
-// by the input or by a random amount, if amount is zero then it will be random 
+// by the input or by a random amount, if amount is zero then it will be random. 
 // if mult_add is true it will multiply by a percentage, else it will add 
 // if all is true it will use same value for all elements, else it will 
 // do different normally distributed random values for each element.
-// if amt_mean is true then amt is the given offset/* amount, else it is the mean
+// if amt_mean is true then stdev is the given offset/* amount, else it is the mean
 // to use in the stdev randomization. 
 // --------------------------------------------------------------------
 void perturb(std::vector<float> &indexarray, double amount, double stdev,
-       bool mult_add, bool all, bool amt_mean) {
+       bool mult_add, bool all, bool amt_mean, int seed, int do_seed) {
+ 
+  if(do_seed == 0 ){ 
+      seed = rand();  
+      
+  }   
+  std::cout << "Seed " <<seed << std::endl;  
   if (!amt_mean) {    // do random
-    std::default_random_engine generator;
-    // normal_distribution<double> distribution(mean,stdev);
+    std::default_random_engine generator (seed); 
     std::normal_distribution<double> distribution(amount, stdev);
-    // srand(time(NULL));
-    int first_digit = distribution(generator);
+    int first_digit = distribution( generator);
     if (mult_add) {    // multiply by 
         if (all) {
          double val = distribution(generator);
@@ -354,9 +358,9 @@ void perturb(std::vector<float> &indexarray, double amount, double stdev,
 } }
 
 
-void Indices::perturb_f107(){
+void Indices::perturb_f107(int seeds, int do_seed){
   
-  perturb(all_indices_arrays[0].values, 3, 1,true,true,true); 
+  perturb(all_indices_arrays[0].values, 1, 3,true,true,false,seeds, do_seed); 
   
 } // allows person to input stdev, type of change, ect to perturb data set, or do in set_* method
 

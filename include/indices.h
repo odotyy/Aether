@@ -54,7 +54,7 @@ class Indices {
 		 std::vector<float> values,
 		 float missing);
 
-  void perturb_f107();
+  void perturb_f107(int seeds, int do_seed);
   void dump_one(int ind);
 
  private:

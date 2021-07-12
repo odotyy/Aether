@@ -37,6 +37,9 @@ public:
   std::string get_planet_species_file();
   std::string get_bfield_type();
 
+  int get_seed();
+  int do_seed();
+
   // ------------------------------
   // Grid inputs:
 
@@ -91,6 +94,9 @@ private:
   int nLonsGeo;
   int nLatsGeo;
   int nAltsGeo;
+
+  int SetSeedManually;
+  int seed_input =0;
 };
 
 #endif  // INCLUDE_INPUTS_H_

@@ -74,5 +74,9 @@ bfield, 0.0
 #chemistry
 UA/inputs/chemistry_earth.csv
 
+#seed
+1
+8
+
 omniweb
 omni_20110622.txt

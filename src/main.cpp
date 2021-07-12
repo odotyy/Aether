@@ -94,10 +94,11 @@ int main() {
   }
 
   //testing perturb
-  indices.perturb_f107();
+  indices.perturb_f107(input.get_seed(), input.do_seed());
   indices.dump_one(0);
-
+ 
   report.exit(function);
   report.times();
+  
   return iErr;
 }
