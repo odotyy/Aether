@@ -310,7 +310,7 @@ void perturb(std::vector<float> &indexarray, double amount, double stdev,
        bool mult_add, bool all, bool amt_mean, int seed, int do_seed) {
  
   if(do_seed == 0 ){ 
-      seed = rand();  
+      seed = int(std::chrono::system_clock::now().time_since_epoch().count());  
       
   }   
   std::cout << "Seed " <<seed << std::endl;  
@@ -355,7 +355,14 @@ void perturb(std::vector<float> &indexarray, double amount, double stdev,
             indexarray[i] = indexarray[i] + amount;
             }
   }
-} }
+} 
+
+  // create seed.in
+  std::ofstream seedfile;
+  seedfile.open("./UA/restartOut/seed.in");
+  seedfile << seed << std::endl;  
+
+}
 
 
 void Indices::perturb_f107(int seeds, int do_seed){
