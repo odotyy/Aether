@@ -360,7 +360,7 @@ void perturb(std::vector<float> &indexarray, double amount, double stdev,
   // create seed.in
   std::ofstream seedfile;
   seedfile.open("./UA/restartOut/seed.in");
-  seedfile << seed << std::endl;  
+  seedfile << "Seed: " << seed << std::endl;  
 
 }
 
