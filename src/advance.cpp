@@ -58,7 +58,7 @@ int advance(Planets &planet,
   ions.avee = std::get<2>(electrodynamics_values);
   ions.calc_ion_drift(neutrals, gGrid, time.get_dt(), report);
 
-  calc_aurora(gGrid, neutrals, ions, report);
+  calc_aurora(gGrid, neutrals, ions, input, report);
   
   neutrals.calc_conduction(gGrid, time, report);
   chemistry.calc_chemistry(neutrals, ions, time, gGrid, report);
