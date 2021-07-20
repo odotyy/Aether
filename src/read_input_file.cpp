@@ -144,7 +144,11 @@ int Inputs::read(Times &time, Report &report) {
 
       if (hash == "#seed") {
         SetSeedManually = read_int(infile_ptr, hash);
-        seed_input = read_int(infile_ptr, hash);
+	if (SetSeedManually) {
+	  seed_input = read_int(infile_ptr, hash);
+	} else {
+	  seed_input = 0;
+	}
       }
 
       // ---------------------------
