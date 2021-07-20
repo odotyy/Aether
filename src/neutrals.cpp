@@ -42,6 +42,9 @@ Neutrals::species_chars Neutrals::create_species(Grid grid) {
   tmp.losses_scgc.set_size(nLons, nLats, nAlts);
   tmp.losses_scgc.zeros();
 
+  tmp.nAuroraIonSpecies = 0;
+  tmp.Aurora_Coef = -1.0;
+
   return tmp;
 }
 
