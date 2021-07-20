@@ -93,7 +93,7 @@ int main() {
     // Do some coupling here. But we have no coupling to do. Sad.
   }
 
-  //testing perturb
+  // testing perturb
   indices.perturb_f107(input.get_seed(), input.do_seed());
   indices.dump_one(0);
  
