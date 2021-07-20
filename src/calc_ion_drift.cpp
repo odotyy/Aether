@@ -63,7 +63,10 @@ std::vector<fcube> Ions::calc_ion_electron_pressure_gradient(int64_t iIon,
 // Calculate the ion drift
 // --------------------------------------------------------------------------
 
-void Ions::calc_ion_drift(Neutrals neutrals, Grid grid, float dt, Report &report) {
+void Ions::calc_ion_drift(Neutrals neutrals,
+			  Grid grid,
+			  float dt,
+			  Report &report) {
 
   std::string function = "Ions::calc_ion_drift";
   static int iFunction = -1;
@@ -99,65 +102,75 @@ void Ions::calc_ion_drift(Neutrals neutrals, Grid grid, float dt, Report &report
   
   for (iIon = 0; iIon < nIons; iIon++) {
 
-    // Need mass density for the current ion species:
-    rho = species[iIon].mass * species[iIon].density_scgc;
+    // Only calculate the ion velocity for the species that are advected:
+    
+    if (species[iIon].DoAdvect) {
+    
+      // Need mass density for the current ion species:
+      rho = species[iIon].mass * species[iIon].density_scgc;
 
-    // Get gradient in pressure:
-    report.print(5, "going into pressure gradient");
-    grad_Pi_plus_Pe = calc_ion_electron_pressure_gradient(iIon, grid, report);
+      // Get gradient in pressure:
+      report.print(5, "going into pressure gradient");
+      grad_Pi_plus_Pe = calc_ion_electron_pressure_gradient(iIon, grid, report);
 
-    // This is assuming that the 3rd dim is radial.
-    // Want actual gravity for 3rd dim
-    // (negative is due to gravity being positive for some reason):
-    gravity_vcgc[2] = -grid.gravity_scgc % rho;
+      // This is assuming that the 3rd dim is radial.
+      // Want actual gravity for 3rd dim
+      // (negative is due to gravity being positive for some reason):
+      gravity_vcgc[2] = -grid.gravity_scgc % rho;
 
-    // Neutral Wind Forcing:
-    report.print(5, "neutral winds");
-    for (int64_t iComp = 0; iComp < 3; iComp++)
-      wind_forcing[iComp].zeros();
-    for (iNeutral = 0; iNeutral < nSpecies; iNeutral++) {
-      rho_nuin = rho % species[iIon].nu_ion_neutral_vcgc[iNeutral];
-      nuin_sum = nuin_sum + species[iIon].nu_ion_neutral_vcgc[iNeutral];
-      for (int64_t iComp = 0; iComp < 3; iComp++) {
-	wind_forcing[iComp] = wind_forcing[iComp] +
-	  rho_nuin % neutrals.velocity_vcgc[iComp];
+      // Neutral Wind Forcing:
+      report.print(5, "neutral winds");
+      for (int64_t iComp = 0; iComp < 3; iComp++)
+	wind_forcing[iComp].zeros();
+      for (iNeutral = 0; iNeutral < nSpecies; iNeutral++) {
+	rho_nuin = rho % species[iIon].nu_ion_neutral_vcgc[iNeutral];
+	nuin_sum = nuin_sum + species[iIon].nu_ion_neutral_vcgc[iNeutral];
+	for (int64_t iComp = 0; iComp < 3; iComp++) {
+	  wind_forcing[iComp] = wind_forcing[iComp] +
+	    rho_nuin % neutrals.velocity_vcgc[iComp];
+	}
       }
-    }
 
-    // Total Forcing (sum everything - this is A_s):
-    for (int64_t iComp = 0; iComp < 3; iComp++) {
-      total_forcing[iComp] =
-        - grad_Pi_plus_Pe[iComp]
-	+ gravity_vcgc[iComp]
-	+ wind_forcing[iComp];
-    }
-
-    std::vector<fcube> a_par = make_cube_vector(nX, nY, nZ, 3);
-    if (grid.get_HasBField()) {
-      fcube a_dot_b = dot_product(total_forcing, grid.bfield_unit_vcgc);
+      // Total Forcing (sum everything - this is A_s):
       for (int64_t iComp = 0; iComp < 3; iComp++) {
-	a_par[iComp] = a_dot_b % grid.bfield_unit_vcgc[iComp];
-	// Steady state:
-	species[iIon].par_velocity_vcgc[iComp] =
-	  a_par[iComp] / rho / nuin_sum;
-	// implicit time-step
-	//(species[iIon].par_velocity_vcgc[iComp] + a_par[iComp] * dt / rho) /
-	//(1 + nuin_sum * dt);
+	total_forcing[iComp] =
+	  - grad_Pi_plus_Pe[iComp]
+	  + gravity_vcgc[iComp]
+	  + wind_forcing[iComp];
       }
+
+      std::vector<fcube> a_par = make_cube_vector(nX, nY, nZ, 3);
+      if (grid.get_HasBField()) {
+	fcube a_dot_b = dot_product(total_forcing, grid.bfield_unit_vcgc);
+	for (int64_t iComp = 0; iComp < 3; iComp++) {
+	  a_par[iComp] = a_dot_b % grid.bfield_unit_vcgc[iComp];
+	  // Steady state:
+	  species[iIon].par_velocity_vcgc[iComp] =
+	    a_par[iComp] / rho / nuin_sum;
+	  // implicit time-step
+	  //(species[iIon].par_velocity_vcgc[iComp] + a_par[iComp] * dt / rho) /
+	  //(1 + nuin_sum * dt);
+	}
+      } else {
+	for (int64_t iComp = 0; iComp < 3; iComp++) {
+	  a_par[iComp] = total_forcing[iComp];
+	  // Steady state:
+	  species[iIon].par_velocity_vcgc[iComp] =
+	    a_par[iComp] / rho / nuin_sum;
+	  // implicit time-step
+	  //species[iIon].par_velocity_vcgc[iComp] = 
+	  //  (species[iIon].par_velocity_vcgc[iComp] + a_par[iComp] * dt / rho) /
+	  //  (1 + nuin_sum * dt);
+	}
+      }      
+      
     } else {
       for (int64_t iComp = 0; iComp < 3; iComp++) {
-	a_par[iComp] = total_forcing[iComp];
-	// Steady state:
-	species[iIon].par_velocity_vcgc[iComp] =
-	  a_par[iComp] / rho / nuin_sum;
-	// implicit time-step
-	//species[iIon].par_velocity_vcgc[iComp] = 
-	//  (species[iIon].par_velocity_vcgc[iComp] + a_par[iComp] * dt / rho) /
-	//  (1 + nuin_sum * dt);
+	species[iIon].par_velocity_vcgc[iComp].zeros();
+	species[iIon].perp_velocity_vcgc[iComp].zeros();
       }
-    }      
-    
-  }  
+    }
+  }
 
   report.exit(function);
   return;
