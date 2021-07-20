@@ -47,7 +47,7 @@ def get_args(argv):
     winds = 0
     diff = 0
     IsGitm = 1
-    HasHeaders = 0
+    HasHeader = 0
     movie = 0
     rate = 30
 
