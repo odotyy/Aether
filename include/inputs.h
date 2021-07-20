@@ -22,6 +22,7 @@ public:
   float get_euv_heating_eff_neutrals();
   std::string get_euv_model();
   std::string get_euv_file();
+  std::string get_aurora_file();
   std::string get_chemistry_file();
   std::vector<std::string> get_omniweb_files();
   int get_number_of_omniweb_files();
@@ -59,6 +60,7 @@ public:
 private:
 
   std::string euv_file = "UA/inputs/euv.csv";
+  std::string aurora_file = "UA/inputs/aurora_earth.csv";
   std::string chemistry_file = "UA/inputs/chemistry_earth.csv";
   std::string collision_file =
     "UA/inputs/ion_neutral_collision_frequencies.csv";

@@ -123,6 +123,14 @@ int Inputs::read(Times &time, Report &report) {
       }
 
       // ---------------------------
+      // #aurorafile
+      // ---------------------------
+
+      if (hash == "#aurorafile") {
+        aurora_file = read_string(infile_ptr, hash);
+      }
+
+      // ---------------------------
       // #bfield
       // ---------------------------
 

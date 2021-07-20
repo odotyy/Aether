@@ -36,6 +36,10 @@ class Neutrals {
     std::vector<int> iEuvIonSpecies_;
     std::vector<int> iEuvIonId_;
 
+    int nAuroraIonSpecies;
+    std::vector<int> iAuroraIonSpecies_;
+    float Aurora_Coef;
+
     // Some derived quantities:
     fcube chapman_scgc;
     fcube rho_alt_int_scgc;
@@ -52,7 +56,10 @@ class Neutrals {
     float lower_bc_density;
   };
 
+
   // bulk quantities (states):
+
+  
 
   fcube density_scgc;
   std::vector<fcube> velocity_vcgc;

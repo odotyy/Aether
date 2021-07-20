@@ -4,6 +4,11 @@
 #ifndef INCLUDE_AURORA_H_
 #define INCLUDE_AURORA_H_
 
+void read_aurora(Neutrals &neutrals,  
+		 Ions &ions,
+		 Inputs args,
+		 Report &report);
+
 fvec calculate_fang(float eflux,  // in ergs/cm2/s
                     float avee,   // in keV
                     float Ebin,   // eV
@@ -16,6 +21,7 @@ fvec calculate_fang(float eflux,  // in ergs/cm2/s
 void calc_aurora(Grid grid, 
 		 Neutrals &neutrals, 
 		 Ions &ions, 
+		 Inputs args,
 		 Report &report);
 
 #endif  // INCLUDE_AURORA_H_

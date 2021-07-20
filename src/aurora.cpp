@@ -1,7 +1,6 @@
 // Copyright 2020, the Aether Development Team (see doc/dev_team.md for members)
 // Full license can be found in License.md
 
-
 #include <string>
 #include <fstream>
 #include <vector>
@@ -12,8 +11,41 @@
 
 #include "../include/aether.h"
 
-// *will have to change units in code*
+// -----------------------------------------------------------------------------
+// Read in aurora information
+// -----------------------------------------------------------------------------
 
+// ?? reading in like euv example using args.get_aurora_file()  not working ??
+// hardcoding file name for now
+
+void read_aurora(Neutrals &neutrals, 
+		 Ions &ions,
+		 Inputs args,
+		 Report &report){
+
+  std::ifstream myFile;
+  myFile.open(args.get_aurora_file());
+
+  if (myFile.good()) {
+    std::vector<std::vector<std::string>> csv = read_csv(myFile);
+
+    int nLines = csv.size();
+
+    // ?? do something for if csv is empty ??
+
+    for (int iLine = 0; iLine < nLines; iLine++) {
+      //set aurora ion and neutral index and coef
+      int iNeutral_ = neutrals.get_species_id(csv[iLine][0],report);
+      int iIon_ = ions.get_species_id(csv[iLine][1],report);
+      neutrals.species[iNeutral_].iAuroraIonSpecies_.push_back(iIon_);
+      neutrals.species[iNeutral_].nAuroraIonSpecies++;
+      neutrals.species[iNeutral_].Aurora_Coef = stod(csv[iLine][2]);
+    }
+  
+    myFile.close();
+  }
+  
+}
 
 // -----------------------------------------------------------------------------
 // Function to Calculate ionization rate for 1 Ebin for 1 alt profile
@@ -33,7 +65,7 @@ fvec calculate_fang(float eflux,  // in ergs/cm2/s
     static int iFunction = -1;
     report.enter(function, iFunction);
 
-    float de = 0.035;  // keV
+    float de = 0.035;  // keV move to before any loops (beginning of function)
     float char_e = avee / 2;  // keV
     long double Q0 = eflux * 6.242e11;   // eV/cm2/s 
     float E0 = char_e * 1000;  // eV
@@ -56,14 +88,13 @@ fvec calculate_fang(float eflux,  // in ergs/cm2/s
     return qtot; 
 }
 
-
-
 // -----------------------------------------------------------------------------
 // Calculate aurora
 // -----------------------------------------------------------------------------
 void calc_aurora(Grid grid, 
 		 Neutrals &neutrals, 
 		 Ions &ions, 
+		 Inputs args,
 		 Report &report) {
 
   std::string function = "calc_aurora";
@@ -103,14 +134,16 @@ void calc_aurora(Grid grid,
   static std::vector<float> auroral_energies;
   static std::vector<float> auroral_energy_widths;
   std::vector<float> Ci;
-
-  if (IsFirstTime) {
   
+  if (IsFirstTime) {
+    // read aurora csv
+    read_aurora(neutrals, ions, args, report);
+
     float lnE;
 
     for (int64_t iBin = 0; iBin < nBins; iBin++) {
       float energy = exp(Emin + iBin*(Emax-Emin)/(nBins-1));
-      auroral_energies.push_back(energy);  
+      auroral_energies.push_back(energy);  // divide by 1000 here
     }
     auroral_energy_widths = calc_bin_widths(auroral_energies);
     
@@ -126,7 +159,6 @@ void calc_aurora(Grid grid,
 	}
 	Ci.push_back(exp(tot)); 
       }
-      
       CiArray.push_back(Ci);
     }
 
@@ -137,19 +169,18 @@ void calc_aurora(Grid grid,
   fcube scale_height;
   fvec ionization1d;
   fvec H;
-
+  fvec yE;
   fvec rho_tube; 
-
   fvec weighted_sum;
-  fvec O_density_tube;
-  fvec N2_density_tube;
-  fvec O2_density_tube;
-  fvec O;
-  fvec N2;
-  fvec O2;
+  float coef;
+  fvec neutral_density_tube;
+  fvec ionization_tube, ionization_species;
+
+  int iIon_;
 
   rhoH1d.set_size(nAlts);
   ionization1d.set_size(nAlts);
+  weighted_sum.set_size(nAlts);
 
   scale_height = cKB * neutrals.temperature_scgc /
     (neutrals.mean_major_mass_scgc % abs(grid.gravity_scgc));
@@ -165,74 +196,82 @@ void calc_aurora(Grid grid,
       avee = ions.avee(iLon, iLat);
 
       if (eflux > 0.01) {
-      
+
+	// Step 1: Calculate the height-integrated mass density:
+	
 	rhoH1d.zeros(); 
 	for (iSpecies=0; iSpecies < nSpecies; iSpecies++) {
-	  rho_tube = neutrals.species[iSpecies].rho_alt_int_scgc.tube(iLon, iLat);
+	  rho_tube =
+	    neutrals.species[iSpecies].rho_alt_int_scgc.tube(iLon, iLat);
 	  rhoH1d = rhoH1d + rho_tube;
 	}
 
-	// auroral_energy_widths.at(iBin), ions.eflux(iLon,iLat), ions.avee(iLon,iLat),
+	// Step 2: Calculate ionization rates from Fang (all energy bins):
+	
 	ionization1d.zeros();
 	H = scale_height.tube(iLon,iLat);
 	fvec temp;
 
 	for(int iBin = 0; iBin < nBins; iBin++){
 	  Ci = CiArray[iBin];
-	  temp = calculate_fang(eflux, avee,
+    	  temp = calculate_fang(eflux, avee,
 				auroral_energies.at(iBin),
 				rhoH1d,
 				Ci,
 				auroral_energy_widths.at(iBin),
 				H,
 				report);
-	  
 	  ionization1d = ionization1d + temp;  
 	}
 
-	// FINAL IONIZATION 
-        
-	O_density_tube = neutrals.species[iO_].density_scgc.tube(iLon, iLat);
-	N2_density_tube = neutrals.species[iN2_].density_scgc.tube(iLon, iLat);
-	O2_density_tube = neutrals.species[iO2_].density_scgc.tube(iLon, iLat);
-            
-	weighted_sum =
-	  1.00 * O2_density_tube + 
-	  0.92 * N2_density_tube +
-	  0.56 * O_density_tube;
-            
-	// O ionization
-	O = neutrals.species[iO_].ionization_scgc.tube(iLon, iLat);
-	neutrals.species[iO_].ionization_scgc.tube(iLon, iLat) =
-	  O + (0.56 * ionization1d % O_density_tube / weighted_sum);
+	// Step 3: Distribute ionization among neutrals:
+	// Need to figure out which species get what percentage of the
+	// ionization, so we compute a weighted average given the
+	// weights (coef or Aurora_Coef) and the neutral density
+	weighted_sum.zeros();
+	for(int iSpecies = 0; iSpecies < nSpecies; iSpecies++){
+	  if(neutrals.species[iSpecies].nAuroraIonSpecies > 0){
+	    neutral_density_tube =
+	      neutrals.species[iSpecies].density_scgc.tube(iLon, iLat);
+	    coef = neutrals.species[iSpecies].Aurora_Coef;
+	    weighted_sum = weighted_sum + (coef * neutral_density_tube);  
+	  }
+	}
+  
+	// for each species of neutrals that gets aurora, 
+	for (int iSpecies = 0; iSpecies < nSpecies; iSpecies++) {
 
-	O = ions.species[iOP_].ionization_scgc.tube(iLon, iLat);
-	ions.species[iOP_].ionization_scgc.tube(iLon, iLat) =
-	  O + (0.56 * ionization1d % O_density_tube / weighted_sum);
-             
-	// N2 ionization
-	N2 = neutrals.species[iN2_].ionization_scgc.tube(iLon, iLat);
-	neutrals.species[iN2_].ionization_scgc.tube(iLon, iLat) =
-	  N2 + (0.92 * ionization1d % N2_density_tube / weighted_sum);
+	  if (neutrals.species[iSpecies].nAuroraIonSpecies != 0) {
+         
+	    // Parse the ionization into the species-specific parts:
+	    neutral_density_tube =
+	      neutrals.species[iSpecies].density_scgc.tube(iLon, iLat);
+	    coef = neutrals.species[iSpecies].Aurora_Coef;
+	    ionization_species = (coef * ionization1d %
+				  neutral_density_tube / weighted_sum);
 
-	N2 = ions.species[iN2P_].ionization_scgc.tube(iLon, iLat);
-	ions.species[iN2P_].ionization_scgc.tube(iLon, iLat) =
-	  N2 + (0.92 * ionization1d % N2_density_tube / weighted_sum);
+	    // Add to neutrals:
+	    ionization_tube =
+	      neutrals.species[iSpecies].ionization_scgc.tube(iLon, iLat);
+	    neutrals.species[iSpecies].ionization_scgc.tube(iLon, iLat) =
+	      ionization_tube + ionization_species;
+	      
+	    // Add to ions:
+	    for(int iIon = 0;
+		iIon < neutrals.species[iSpecies].nAuroraIonSpecies;
+		iIon++){
+	      iIon_ = neutrals.species[iSpecies].iAuroraIonSpecies_[iIon];
+	      ionization_tube =
+		ions.species[iIon_].ionization_scgc.tube(iLon, iLat);
+	      ions.species[iIon_].ionization_scgc.tube(iLon, iLat) =
+		ionization_tube + ionization_species;
 
-	// O2 ionization
-	O2 = neutrals.species[iO2_].ionization_scgc.tube(iLon, iLat);
-	neutrals.species[iO2_].ionization_scgc.tube(iLon, iLat) =
-	  O2 + (1.00 * ionization1d % N2_density_tube / weighted_sum);
-
-	O2 = ions.species[iO2P_].ionization_scgc.tube(iLon, iLat);
-	ions.species[iO2P_].ionization_scgc.tube(iLon, iLat) =
-	  O2 + (1.00 * ionization1d % N2_density_tube / weighted_sum);	
-
-      }
-            
-    }
-  }
- 
+	    }  // nAuroraIonSpecies
+          }  // if nAuroraIonSpecies > 0
+        }  // nSpecies
+      }  // eflux > 0.01
+    }  // nLats
+  }  // nLons 
   report.exit(function);
 }
 
