@@ -17,7 +17,8 @@ Report::Report() {
   iVerbose = 0;
   divider = ">";
   divider_length = divider.length();
-  iLevel = 0;
+  // Set iLevel to -1, so that the call in main takes it to 0:
+  iLevel = -1;
 }
 
 // -----------------------------------------------------------------------
