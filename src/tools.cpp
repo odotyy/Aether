@@ -4,6 +4,32 @@
 #include "../include/aether.h"
 
 // -----------------------------------------------------------------------------
+// Translate an fvec into a vector
+// -----------------------------------------------------------------------------
+
+std::vector<float> make_vector_from_fvec(fvec in_fvec) {
+
+  int64_t nPts = in_fvec.n_elem;
+  std::vector<float> out_vector(nPts);
+  for (int64_t iPt = 0; iPt < nPts; iPt++)
+    out_vector[iPt] = in_fvec(iPt);
+  return out_vector;
+}
+
+// -----------------------------------------------------------------------------
+// Translate a vector into an fvec
+// -----------------------------------------------------------------------------
+
+fvec make_fvec_from_vector(std::vector<float> in_vector) {
+
+  int64_t nPts = in_vector.size();
+  fvec out_fvec(nPts);
+  for (int64_t iPt = 0; iPt < nPts; iPt++)
+    out_fvec(iPt) = in_vector[iPt];
+  return out_fvec;
+}
+
+// -----------------------------------------------------------------------------
 // Make a vector of fcubes
 // -----------------------------------------------------------------------------
 
