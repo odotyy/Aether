@@ -3,6 +3,16 @@
 
 #include "../include/aether.h"
 
+// Want to be able to call the calculations with fvecs and vectors,
+// but only want to do calculation in one function:
+
+fvec calc_bin_edges(fvec centers) {
+  std::vector<float> centers_vec = make_vector_from_fvec(centers);
+  std::vector<float> edges_vec = calc_bin_edges(centers_vec);
+  fvec edges = make_fvec_from_vector(edges_vec);
+  return edges;
+}
+
 std::vector<float> calc_bin_edges(std::vector<float> centers) {
 
   std::vector<float> edges;
@@ -26,6 +36,13 @@ std::vector<float> calc_bin_edges(std::vector<float> centers) {
     edges.push_back(2 * centers[iPt] - edges[iPt]);
   
   return edges;
+}
+
+fvec calc_bin_widths(fvec centers) {
+  std::vector<float> centers_vec = make_vector_from_fvec(centers);
+  std::vector<float> widths_vec = calc_bin_widths(centers_vec);
+  fvec widths = make_fvec_from_vector(widths_vec);
+  return widths;
 }
 
 std::vector<float> calc_bin_widths(std::vector<float> centers) {
