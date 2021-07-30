@@ -62,7 +62,7 @@ class Ions {
 
   // bulk quantities (states):
   fcube density_scgc;
-
+  std::vector<fcube> velocity_vcgc;
   fcube ion_temperature_scgc;
   fcube electron_temperature_scgc;
 

@@ -68,6 +68,7 @@ Ions::Ions(Grid grid, Inputs input, Report report) {
 
   density_scgc.set_size(nLons, nLats, nAlts);
   density_scgc.ones();
+  velocity_vcgc = make_cube_vector(nLons, nLats, nAlts, 3);
   ion_temperature_scgc.set_size(nLons, nLats, nAlts);
   ion_temperature_scgc.ones();
   electron_temperature_scgc.set_size(nLons, nLats, nAlts);
