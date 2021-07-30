@@ -79,6 +79,8 @@ int write_binary_all_3d(std::string file_name,
       type_output == "states") {
     for (int iSpecies=0; iSpecies < nIons+1; iSpecies++) 
       output_variable_3d(binary, ions.species[iSpecies].density_scgc);
+    for (int iComp=0; iComp < 3; iComp++) 
+      output_variable_3d(binary, ions.velocity_vcgc[iComp]);
     output_variable_3d(binary, ions.potential_scgc);
   }
 
@@ -99,8 +101,8 @@ int write_binary_all_3d(std::string file_name,
 //----------------------------------------------------------------------
 // Write header files. Supported types:
 // 1. neutrals: Lon/Lat/Alt + nSpecies + temp
-// 2. ions: Lon/Lat/Alt + nIons + [e-]
-// 3. states: Lon/Lat/Alt + nSpecies + temp + nIons + [e-]
+// 2. ions: Lon/Lat/Alt + nIons + [e-] + Vi + potential
+// 3. states: Lon/Lat/Alt + nSpecies + temp + nIons + [e-] + Vi + potential
 //----------------------------------------------------------------------
 
 int write_header(std::string file_name,
@@ -125,8 +127,8 @@ int write_header(std::string file_name,
 
   if (type_output == "ions" ||
       type_output == "states")
-    // All ions, electrons, potential:
-    nVars = nVars + nIons + 1 + 1;
+    // All ions, electrons, Vi, potential:
+    nVars = nVars + nIons + 1 + 3 + 1;
   
   if (type_output == "bfield")
     nVars = nVars + 6;
@@ -185,6 +187,9 @@ int write_header(std::string file_name,
 	     << neutrals.density_unit << "\n";
       iVar++;
     }
+    header << iVar << " Ion Velocity (East) (m/s)\n";
+    header << iVar << " Ion Velocity (North) (m/s)\n";
+    header << iVar << " Ion Velocity (Vertical) (m/s)\n";
     header << iVar << " Potential (V)\n";
     iVar++;
 
