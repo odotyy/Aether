@@ -54,8 +54,8 @@ class Indices {
 		 std::vector<float> values,
 		 float missing);
 
-  void perturb_f107(int seeds, int do_seed);
-  void dump_one(int ind);
+  void perturb_general(Inputs input, int index_num);
+  void dump_one(int ind, Inputs args);
 
  private:
 
@@ -82,6 +82,8 @@ class Indices {
   const int iAL_ = 11;
   const int iAU_ = 12;
   int nIndices = 13;
+
+  
   
   float get_index(double time, int index);
 };

@@ -37,8 +37,11 @@ public:
   std::string get_planet_species_file();
   std::string get_bfield_type();
 
+  int get_SetSeedManually();
   int get_seed();
-  int do_seed();
+  int get_ToPerturb();
+  int get_Perturb_Stdev();
+  int get_perturbamount();
 
   // ------------------------------
   // Grid inputs:
@@ -52,6 +55,14 @@ public:
     float lat_max;
     float lon_min;
     float lon_max;
+  };
+
+  struct perturb_input_struct {
+    int SetSeedManually;
+    int seed_input =0;
+    int ToPerturb =0;
+    int Stdev_Perturb;
+    int perturb_amount =0;
   };
 
   grid_input_struct get_grid_inputs();
@@ -78,6 +89,7 @@ private:
   std::string bfield = "none";
 
   grid_input_struct geo_grid_input;
+  perturb_input_struct perturb_inputs;
 
   float euv_heating_eff_neutrals;
   float euv_heating_eff_electrons;
@@ -95,8 +107,7 @@ private:
   int nLatsGeo;
   int nAltsGeo;
 
-  int SetSeedManually;
-  int seed_input =0;
+  
 };
 
 #endif  // INCLUDE_INPUTS_H_

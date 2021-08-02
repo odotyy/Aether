@@ -143,12 +143,13 @@ int Inputs::read(Times &time, Report &report) {
       // ---------------------------
 
       if (hash == "#seed") {
-        SetSeedManually = read_int(infile_ptr, hash);
-	if (SetSeedManually) {
-	  seed_input = read_int(infile_ptr, hash);
-	} else {
-	  seed_input = 0;
-	}
+        perturb_inputs.SetSeedManually = read_int(infile_ptr, hash);
+	      if (perturb_inputs.SetSeedManually != 0) {
+	        perturb_inputs.seed_input = read_int(infile_ptr, hash);
+	      } else {
+	        perturb_inputs.seed_input = 0;
+	    }
+        
       }
 
       // ---------------------------
@@ -158,6 +159,15 @@ int Inputs::read(Times &time, Report &report) {
 
       if (hash == "#omniweb") {
         omniweb_files.push_back(read_string(infile_ptr, hash));
+        perturb_inputs.ToPerturb = read_int(infile_ptr, hash);
+        if(perturb_inputs.ToPerturb != 0) {
+          perturb_inputs.Stdev_Perturb = read_int(infile_ptr, hash);
+          perturb_inputs.perturb_amount = read_int(infile_ptr, hash);
+        } else {
+          perturb_inputs.Stdev_Perturb = 0;
+          perturb_inputs.perturb_amount = 0;
+        }
+        
       }
 
       // ---------------------------

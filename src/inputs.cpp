@@ -89,16 +89,37 @@ std::string Inputs::get_euv_model() {
 }
 
 // -----------------------------------------------------------------------
-// Return the seed used to perturb
+// Return the int associated with whether to set the seed
 // -----------------------------------------------------------------------
 
-int Inputs::get_seed() {
-  return seed_input;
+int Inputs::get_SetSeedManually() {
+  return perturb_inputs.SetSeedManually;
 }
 
-int Inputs::do_seed() {
-  return SetSeedManually;
+// -----------------------------------------------------------------------
+// Return the seed
+// -----------------------------------------------------------------------
+int Inputs::get_seed() {
+  return perturb_inputs.seed_input;
 }
+
+// -----------------------------------------------------------------------
+// Return the int associated with whether to perturb
+// -----------------------------------------------------------------------
+int Inputs::get_ToPerturb(){
+  return perturb_inputs.ToPerturb;
+}
+
+int Inputs::get_perturbamount(){
+  return perturb_inputs.perturb_amount;
+}
+
+// -----------------------------------------------------------------------
+// Return the perturb standard deviaton
+// -----------------------------------------------------------------------
+int Inputs::get_Perturb_Stdev(){
+    return perturb_inputs.Stdev_Perturb;
+  }
 
 // -----------------------------------------------------------------------
 // Return the heating efficiency of the neutrals for EUV

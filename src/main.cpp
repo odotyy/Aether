@@ -94,8 +94,8 @@ int main() {
   }
 
   // testing perturb
-  indices.perturb_f107(input.get_seed(), input.do_seed());
-  indices.dump_one(0);
+  //indices.perturb_general(input, 0);
+  //indices.dump_one(0, input);
  
   report.exit(function);
   report.times();

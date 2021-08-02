@@ -19,7 +19,7 @@ Indices::Indices(Inputs args) {
   int iIndex;
   index_time_pair single_index;
   single_index.nValues = 0;
-  single_index.name = "Not set";
+  // single_index.name = "Not set";
   for (iIndex = 0; iIndex < nIndices; iIndex++) {
     all_indices_arrays.push_back(single_index);
   }
@@ -52,6 +52,8 @@ int read_and_store_indices(Indices &indices, Inputs args, Report &report) {
     f107_contents = read_f107_file(f107_file, indices, report);
     if (f107_contents.nTimes > 0) {
       indices.set_f107(f107_contents);
+      //perturb f107
+      indices.perturb_general(args, 0);
     } else {
       iErr = 1;
       std::cout << "ERROR in reading f107 file!!!\n";
@@ -86,7 +88,8 @@ int read_and_store_indices(Indices &indices, Inputs args, Report &report) {
       }  // for iVar
     }  // for iFile
   }  // if nFiles
-
+  // perturb omni
+  indices.perturb_general(args, 2);
   report.exit(function);
   return iErr;
 }
@@ -300,23 +303,25 @@ int Indices::get_al_index_id() { return iAL_; }
 // --------------------------------------------------------------------
 // This function will perturb the inputed data array an amount
 // determined by the input or by a random amount, if amount is zero
-// then it will be random.  if mult_add is true it will multiply by a
+// then it will be random.  if To_Multiply is true it will multiply by a
 // percentage, else it will add if all is true it will use same value
 // for all elements, else it will do different normally distributed
-// random values for each element.  if amt_mean is true then stdev is
-// the given offset/* amount, else it is the mean to use in the stdev
-// randomization.
+// random values for each element.  if IsStdev is true then use stdev in
+// the randomization, else use perturb amount for all
+
+// This function perturbs a given index based on input conditions
+// ---
+// if chosen to set seed manually, it will use the given seed to generate a random 
+// number sequence to use to perturb the data, else it will use a randomly generated seed 
+// if stdev_perturb (in args) is not 0, it will use a normal distribution, else it will perturb by that amount
 // --------------------------------------------------------------------
-void perturb(std::vector<float> &indexarray,
-	     double amount,
-	     double stdev,
-	     bool mult_add,
-	     bool all,
-	     bool amt_mean,
-	     int seed,
-	     int do_seed) {
+void perturb(std::vector<float> &indexarray, 
+	     bool To_Multiply,
+	     bool Perturb_All_Same,
+	     Inputs args) {
  
-  if (!do_seed) 
+  int seed = args.get_seed();
+  if (args.get_SetSeedManually() == 0) 
     seed = int(std::chrono::system_clock::now().time_since_epoch().count());  
   std::cout << "Seed " <<seed << std::endl;  
 
@@ -325,12 +330,12 @@ void perturb(std::vector<float> &indexarray,
   seedfile.open("./UA/restartOut/seed.in");
   seedfile << "Seed: " << seed << std::endl;  
 
-  if (!amt_mean) {    // do random
+  if (args.get_Perturb_Stdev() == 0) {    // do random
     std::default_random_engine generator (seed); 
-    std::normal_distribution<double> distribution(amount, stdev);
+    std::normal_distribution<double> distribution(args.get_perturbamount(), args.get_Perturb_Stdev());
     int first_digit = distribution( generator);
-    if (mult_add) {    // multiply by 
-      if (all) {
+    if (To_Multiply) {    // multiply by 
+      if (Perturb_All_Same) {
 	double val = distribution(generator);
         for (int i = 0; i < indexarray.size(); ++i) {
 	  indexarray[i] = indexarray[i] * (1+ val);
@@ -341,8 +346,8 @@ void perturb(std::vector<float> &indexarray,
         }
       }
     }
-    if (!mult_add) {    // add 
-      if (all) {
+    if (!To_Multiply) {    // add 
+      if (Perturb_All_Same) {
 	double val = distribution(generator);
         for (int i = 0; i < indexarray.size(); ++i) {
 	  indexarray[i] = indexarray[i] + val;
@@ -355,14 +360,14 @@ void perturb(std::vector<float> &indexarray,
     }
   } else {
     // add a constant offset
-    if(mult_add){
+    if(To_Multiply){
       for (int i = 0; i < indexarray.size(); ++i) {
-	indexarray[i] = indexarray[i] * amount;
+	indexarray[i] = indexarray[i] * args.get_perturbamount();
       }
     }
-    if (!mult_add) {
+    if (!To_Multiply) {
       for (int i = 0; i < indexarray.size(); ++i) {
-	indexarray[i] = indexarray[i] + amount;
+	indexarray[i] = indexarray[i] + args.get_perturbamount();
       }
     }
   } 
@@ -371,31 +376,37 @@ void perturb(std::vector<float> &indexarray,
 }
 
 
-void Indices::perturb_f107(int seeds, int do_seed) {
+void Indices::perturb_general(Inputs input, int index_number) {
   
-  perturb(all_indices_arrays[0].values, 1, 3,true,true,false,seeds, do_seed); 
+  perturb(all_indices_arrays[index_number].values, true,true,input); 
   
 } // allows person to input stdev, type of change, etc to perturb data
   // set, or do in set_* method
 
 
-void Indices::dump_one(int ind){
+void Indices::dump_one(int ind, Inputs args){
 
   std::ofstream dumpfile;
   dumpfile.open("indices.txt");
   dumpfile << "#INDEX" << std::endl;
   // print time/value pairs
- 
+  dumpfile << "#PERTURB" << std::endl;
+  //if(args.)
+  dumpfile << "Seed:" << args.get_seed() << std::endl;
+  dumpfile << "Standard Deviation:" << args.get_Perturb_Stdev()<< std::endl;
   dumpfile << all_indices_arrays[ind].name << std::endl;
   // go through all of the indices and see which have more than zero
   // values. Then add those.
   if (all_indices_arrays[ind].nValues > 0){
+    dumpfile <<"#START" << std::endl;
     for (int iVal = 0; iVal < all_indices_arrays.size(); iVal++) {
       dumpfile << all_indices_arrays[ind].times[iVal]
 	       << " "
 	       << all_indices_arrays[ind].values[iVal]
 	       << std::endl;
+         
     }
+    dumpfile << "#END" << std::endl;
   } else {
     dumpfile << "empty" << std::endl;
   }
