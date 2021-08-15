@@ -35,8 +35,8 @@ int main() {
 
   // Initialize Geographic grid:
   Grid gGrid(input.get_nLonsGeo(),
-       input.get_nLatsGeo(),
-       input.get_nAltsGeo(), nGeoGhosts);
+             input.get_nLatsGeo(),
+             input.get_nAltsGeo(), nGeoGhosts);
   gGrid.init_geo_grid(planet, input, report);
   gGrid.fill_grid(planet, report);
 
@@ -60,17 +60,19 @@ int main() {
 
   // Initialize electrodynamics and check if electrodynamics times works with input time
   Electrodynamics electrodynamics(input, report);
-  bool times_are_aligned = electrodynamics.check_times(time.get_current(), time.get_end());
-  if (!times_are_aligned){
+  bool times_are_aligned = electrodynamics.check_times(time.get_current(),
+                                                       time.get_end());
+
+  if (!times_are_aligned) {
     iErr = 1;
-    std::cout << "Times don't align with electrodynamics file!  Please check this!\n";
+    std::cout <<
+              "Times don't align with electrodynamics file!  Please check this!\n";
     return iErr;
   }
-  
+
   // This is for the initial output.  If it is not a restart, this will go:
-  if (time.check_time_gate(input.get_dt_output(0))) {
+  if (time.check_time_gate(input.get_dt_output(0)))
     iErr = output(neutrals, ions, gGrid, time, planet, input, report);
-  }
 
   // This is advancing now...
 
@@ -103,6 +105,7 @@ int main() {
 
     // Do some coupling here. But we have no coupling to do. Sad.
   }
+
   report.exit(function);
   report.times();
   return iErr;

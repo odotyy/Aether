@@ -11,14 +11,16 @@ fmat read_in_fmat_array(FILE *infile, int nRows, int nCols) {
   float dummy;
   int reclen;
   values.set_size(nCols, nRows);
-  
+
   fread(&reclen, sizeof(reclen), 1, infile);
-  for (int i=0; i < nCols; i++) {
-    for (int j=0; j < nRows; j++) {
+
+  for (int i = 0; i < nCols; i++) {
+    for (int j = 0; j < nRows; j++) {
       fread(&dummy, sizeof(dummy), 1, infile);
-      values(i,j) = dummy;
+      values(i, j) = dummy;
     }
   }
+
   fread(&reclen, sizeof(reclen), 1, infile);
 
   return values;
@@ -30,13 +32,15 @@ std::vector<float> read_in_float_array(FILE *infile, int nPoints) {
   float dummy;
   int reclen;
   fread(&reclen, sizeof(reclen), 1, infile);
-  for (int i=0; i < nPoints; i++) {
+
+  for (int i = 0; i < nPoints; i++) {
     fread(&dummy, sizeof(dummy), 1, infile);
     values.push_back(dummy);
   }
+
   fread(&reclen, sizeof(reclen), 1, infile);
 
-  return values;  
+  return values;
 }
 
 std::vector<int> read_in_int_array(FILE *infile, int nPoints) {
@@ -46,13 +50,15 @@ std::vector<int> read_in_int_array(FILE *infile, int nPoints) {
   int reclen;
 
   fread(&reclen, sizeof(reclen), 1, infile);
-  for (int i=0; i < nPoints; i++) {
+
+  for (int i = 0; i < nPoints; i++) {
     fread(&dummy, sizeof(dummy), 1, infile);
     values.push_back(dummy);
   }
+
   fread(&reclen, sizeof(reclen), 1, infile);
 
-  return values;  
+  return values;
 }
 
 std::string read_in_string(FILE *infile) {
@@ -62,10 +68,12 @@ std::string read_in_string(FILE *infile) {
   int reclen;
 
   fread(&reclen, sizeof(reclen), 1, infile);
-  for (int i=0; i < reclen; i++) {
+
+  for (int i = 0; i < reclen; i++) {
     fread(&dummy, sizeof(dummy), 1, infile);
     value.push_back(dummy);
   }
+
   fread(&reclen, sizeof(reclen), 1, infile);
 
   return value;
@@ -73,26 +81,29 @@ std::string read_in_string(FILE *infile) {
 
 
 //done with binary currently, not netcdf
-void Electrodynamics::read_netcdf_electrodynamics_file(std::string filename, Report &report){
-  if (filename == ""){
+void Electrodynamics::read_netcdf_electrodynamics_file(std::string filename,
+                                                       Report &report) {
+  if (filename == "")
     return;
-  }
+
   int reclen;
   int nLats, nMlts, nTimes, nVars;
   std::vector<double> real_times;
   fvec mlats_struct, mlts_struct;
-  std::vector<fmat> potential_struct, energy_flux_struct, average_energy_struct, 
-    ion_energy_flux_struct, ion_average_energy_struct;
+  std::vector<fmat> potential_struct, energy_flux_struct, average_energy_struct,
+      ion_energy_flux_struct, ion_average_energy_struct;
 
-  report.print(1, "Reading Electrodynamics file : "+filename);
+  report.print(1, "Reading Electrodynamics file : " + filename);
   FILE *infile;
 
   char* char_arr;
   char_arr = &filename[0];
   infile = fopen(char_arr, "rb");
-  if (infile == NULL) {
+
+  if (infile == NULL)
     std::cout << "can't find the electrodynamice file!\n";
-  } else {
+
+  else {
 
     // read in number of lats, mlts, times:
     fread(&reclen, sizeof(reclen), 1, infile);
@@ -103,8 +114,10 @@ void Electrodynamics::read_netcdf_electrodynamics_file(std::string filename, Rep
 
     std::vector<float> lats, mlts;
     lats = read_in_float_array(infile, nLats);
-    for (int iLat = 0; iLat < nLats; iLat++) 
+
+    for (int iLat = 0; iLat < nLats; iLat++)
       lats[iLat] = 90.0 - lats[iLat];
+
     mlts = read_in_float_array(infile, nMlts);
 
     mlats_struct = conv_to<fmat>::from(lats);
@@ -116,10 +129,12 @@ void Electrodynamics::read_netcdf_electrodynamics_file(std::string filename, Rep
     fread(&reclen, sizeof(reclen), 1, infile);
 
     std::vector<std::string> Vars;
+
     for (int i = 0; i < nVars; i++) {
       Vars.push_back(read_in_string(infile));
-      report.print(2, "Reading Var : "+Vars[i]);
+      report.print(2, "Reading Var : " + Vars[i]);
     }
+
     std::vector<int> itime;
     std::vector<float> indices;
 
@@ -137,27 +152,32 @@ void Electrodynamics::read_netcdf_electrodynamics_file(std::string filename, Rep
       real_times.push_back(real_time);
 
       indices = read_in_float_array(infile, 13);
-            
-      for (int iv = 0; iv < nVars; iv++) { 
-	values = read_in_fmat_array(infile, nMlts, nLats);
-	if (it == 0) {
-	  values_one_time.push_back(values);
-	} else {
-	  values_one_time[iv] = values;
-	}
+
+      for (int iv = 0; iv < nVars; iv++) {
+        values = read_in_fmat_array(infile, nMlts, nLats);
+
+        if (it == 0)
+          values_one_time.push_back(values);
+
+        else
+          values_one_time[iv] = values;
       }
+
       potential_struct.push_back(values_one_time[0]);
       energy_flux_struct.push_back(values_one_time[1]);
       average_energy_struct.push_back(values_one_time[2]);
-      if (nVars == 5){
-	ion_energy_flux_struct.push_back(values_one_time[3]);
-	ion_average_energy_struct.push_back(values_one_time[4]);
+
+      if (nVars == 5) {
+        ion_energy_flux_struct.push_back(values_one_time[3]);
+        ion_average_energy_struct.push_back(values_one_time[4]);
       }
+
       all_values.push_back(values_one_time);
-    }      
+    }
   }
+
   fclose(infile);
-   
+
   input_electrodynamics_struct obj = input_electrodynamics_struct();
   obj.nLats = nLats;
   obj.nMlts = nMlts;
@@ -170,10 +190,9 @@ void Electrodynamics::read_netcdf_electrodynamics_file(std::string filename, Rep
   obj.average_energy = average_energy_struct;
   obj.ion_energy_flux = ion_energy_flux_struct;
   obj.ion_average_energy = ion_average_energy_struct;
-  
-  if (nVars == 5){
+
+  if (nVars == 5)
     obj.DoesIncludeIonPrecip = 1;
-  }
 
   input_electrodynamics.push_back(obj);
 }

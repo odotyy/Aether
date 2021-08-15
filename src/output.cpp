@@ -6,7 +6,7 @@
 #include <fstream>
 
 //----------------------------------------------------------------------
-// Output a given variable to the binary file. 
+// Output a given variable to the binary file.
 // ----------------------------------------------------------------------
 
 
@@ -14,7 +14,7 @@ void output_variable_3d(std::ofstream &binary,
                         fcube value) {
 
   // Get the size of the cube:
-  
+
   int64_t nX = value.n_rows;
   int64_t nY = value.n_cols;
   int64_t nZ = value.n_slices;
@@ -27,35 +27,35 @@ void output_variable_3d(std::ofstream &binary,
   float *tmp_s3gc = static_cast<float*>(malloc(iTotalSize));
 
   // Move the data from the cube to the c-array
-  
+
   for (iZ = 0; iZ < nZ; iZ++) {
     for (iY = 0; iY < nY; iY++) {
       for (iX = 0; iX < nX; iX++) {
-	// Python ordering!
-        index = iX + iY*nX + iZ*nY*nX;
+        // Python ordering!
+        index = iX + iY * nX + iZ * nY * nX;
         tmp_s3gc[index] = value(iX, iY, iZ);
       }
     }
   }
 
   // Output the data to the binary file
-  binary.write((char *) tmp_s3gc, iTotalSize);  
+  binary.write((char *) tmp_s3gc, iTotalSize);
 
   // delete the c-array
   free(tmp_s3gc);
 }
 
 //----------------------------------------------------------------------
-// Figure out which variables to the binary file. 
+// Figure out which variables to the binary file.
 // ----------------------------------------------------------------------
 
 int write_binary_all_3d(std::string file_name,
-			std::string type_output,
-			Neutrals neutrals,
-			Ions ions,
-			Grid grid,
-			Times time,
-			Planets planet) {
+                        std::string type_output,
+                        Neutrals neutrals,
+                        Ions ions,
+                        Grid grid,
+                        Times time,
+                        Planets planet) {
 
   int iErr = 0;
   std::ofstream binary;
@@ -65,23 +65,25 @@ int write_binary_all_3d(std::string file_name,
   output_variable_3d(binary, grid.geoLon_scgc);
   output_variable_3d(binary, grid.geoLat_scgc);
   output_variable_3d(binary, grid.geoAlt_scgc);
-  
+
   // Neutral States
   if (type_output == "neutrals" ||
-      type_output == "states") {    
-    for (int iSpecies=0; iSpecies < nSpecies; iSpecies++)
+      type_output == "states") {
+    for (int iSpecies = 0; iSpecies < nSpecies; iSpecies++)
       output_variable_3d(binary, neutrals.species[iSpecies].density_scgc);
+
     output_variable_3d(binary, neutrals.temperature_scgc);
   }
 
   // Ion States:
   if (type_output == "ions" ||
       type_output == "states") {
-    for (int iSpecies=0; iSpecies < nIons+1; iSpecies++) 
+    for (int iSpecies = 0; iSpecies < nIons + 1; iSpecies++)
       output_variable_3d(binary, ions.species[iSpecies].density_scgc);
-    for (int iSpecies=0; iSpecies < nIons+1; iSpecies++) 
-      for (int iComp=0; iComp < 3; iComp++) 
-	output_variable_3d(binary, ions.species[iSpecies].par_velocity_vcgc[iComp]);
+
+    for (int iComp = 0; iComp < 3; iComp++)
+      output_variable_3d(binary, ions.velocity_vcgc[iComp]);
+
     output_variable_3d(binary, ions.potential_scgc);
   }
 
@@ -90,37 +92,38 @@ int write_binary_all_3d(std::string file_name,
     output_variable_3d(binary, grid.magLat_scgc);
     output_variable_3d(binary, grid.magLon_scgc);
     output_variable_3d(binary, grid.magLocalTime_scgc);
-    for (int iComp=0; iComp < 3; iComp++)
+
+    for (int iComp = 0; iComp < 3; iComp++)
       output_variable_3d(binary, grid.bfield_vcgc[iComp]);
   }
 
   binary.close();
   return iErr;
-  
+
 }
 
 //----------------------------------------------------------------------
 // Write header files. Supported types:
 // 1. neutrals: Lon/Lat/Alt + nSpecies + temp
-// 2. ions: Lon/Lat/Alt + nIons + [e-]
-// 3. states: Lon/Lat/Alt + nSpecies + temp + nIons + [e-]
+// 2. ions: Lon/Lat/Alt + nIons + [e-] + Vi + potential
+// 3. states: Lon/Lat/Alt + nSpecies + temp + nIons + [e-] + Vi + potential
 //----------------------------------------------------------------------
 
 int write_header(std::string file_name,
-		 std::string type_output,
-		 Neutrals neutrals,
-		 Ions ions,
-		 Grid grid,
-		 Times time,
-		 Planets planet) {
+                 std::string type_output,
+                 Neutrals neutrals,
+                 Ions ions,
+                 Grid grid,
+                 Times time,
+                 Planets planet) {
 
   int iErr = 0;
   std::ofstream header;
   header.open(file_name);
 
   // Everything gets lon/lat/alt:
-  int nVars = 3;  
-  
+  int nVars = 3;
+
   if (type_output == "neutrals" ||
       type_output == "states")
     // All neutrals, temperature
@@ -128,9 +131,9 @@ int write_header(std::string file_name,
 
   if (type_output == "ions" ||
       type_output == "states")
-    // All ions, electrons, velocities, potential:
-    nVars = nVars + nIons + 1 + nIons*3 + 1;
-  
+    // All ions, electrons, Vi, potential:
+    nVars = nVars + nIons + 1 + 3 + 1;
+
   if (type_output == "bfield")
     nVars = nVars + 6;
 
@@ -143,7 +146,9 @@ int write_header(std::string file_name,
   header << "\n";
   header << "TIME\n";
   std::vector<int> iCurrent = time.get_iCurrent();
-  for (int i = 0; i < 7; i++) header << iCurrent[i] << "\n";
+
+  for (int i = 0; i < 7; i++)
+    header << iCurrent[i] << "\n";
 
   header << "\n";
   header << "VERSION\n";
@@ -163,46 +168,36 @@ int write_header(std::string file_name,
   header << "3 Altitude (m)\n";
 
   int iVar = 4;
+
   if (type_output == "neutrals" ||
       type_output == "states") {
-    
-    for (int iSpecies=0; iSpecies < nSpecies; iSpecies++) {
+
+    for (int iSpecies = 0; iSpecies < nSpecies; iSpecies++) {
       header << iVar << " "
-	     << neutrals.species[iSpecies].cName << " "
-	     << neutrals.density_unit << "\n";
+             << neutrals.species[iSpecies].cName << " "
+             << neutrals.density_unit << "\n";
       iVar++;
     }
 
     header << iVar << " "
-	   << neutrals.temperature_name << " "
-	   << neutrals.temperature_unit << "\n";
+           << neutrals.temperature_name << " "
+           << neutrals.temperature_unit << "\n";
     iVar++;
-  }    
+  }
 
   if (type_output == "ions" ||
       type_output == "states") {
 
-    // Densities
-    for (int iSpecies=0; iSpecies < nIons+1; iSpecies++) {
+    for (int iSpecies = 0; iSpecies < nIons + 1; iSpecies++) {
       header << iVar << " "
-	     << ions.species[iSpecies].cName << " "
-	     << neutrals.density_unit << "\n";
+             << ions.species[iSpecies].cName << " "
+             << neutrals.density_unit << "\n";
       iVar++;
     }
 
-    // Velocities
-    for (int iSpecies=0; iSpecies < nIons; iSpecies++) {
-      header << iVar << " Vparx (" << ions.species[iSpecies].cName << ") "
-	     << " (m/s) \n";
-      iVar++;
-      header << iVar << " Vpary (" << ions.species[iSpecies].cName << ") "
-	     << " (m/s) \n";
-      iVar++;
-      header << iVar << " Vparz (" << ions.species[iSpecies].cName << ") "
-	     << " (m/s) \n";
-      iVar++;
-    }
-
+    header << iVar << " Ion Velocity (East) (m/s)\n";
+    header << iVar << " Ion Velocity (North) (m/s)\n";
+    header << iVar << " Ion Velocity (Vertical) (m/s)\n";
     header << iVar << " Potential (V)\n";
     iVar++;
 
@@ -215,11 +210,11 @@ int write_header(std::string file_name,
     iVar++;
     header << iVar << " Magnetic Local Time (hours)\n";
     iVar++;
-    header << iVar << " Beast (T)\n";
+    header << iVar << " Beast (nT)\n";
     iVar++;
-    header << iVar << " Bnorth (T)\n";
+    header << iVar << " Bnorth (nT)\n";
     iVar++;
-    header << iVar << " Bvertical (T)\n";
+    header << iVar << " Bvertical (nT)\n";
     iVar++;
   }
 
@@ -232,7 +227,7 @@ int write_header(std::string file_name,
 }
 
 //----------------------------------------------------------------------
-// Output the different file types to binary files. 
+// Output the different file types to binary files.
 //----------------------------------------------------------------------
 
 int output(Neutrals neutrals,
@@ -271,9 +266,14 @@ int output(Neutrals neutrals,
       std::string type_output = args.get_type_output(iOutput);
       std::string output_dir = "UA/output/";
 
-      if (type_output == "neutrals") file_pre = "3DNEU";
-      if (type_output == "states") file_pre = "3DALL";
-      if (type_output == "bfield") file_pre = "3DBFI";
+      if (type_output == "neutrals")
+        file_pre = "3DNEU";
+
+      if (type_output == "states")
+        file_pre = "3DALL";
+
+      if (type_output == "bfield")
+        file_pre = "3DBFI";
 
       time_string = time.get_YMD_HMS();
       std::string file_ext = ".header";
@@ -283,13 +283,13 @@ int output(Neutrals neutrals,
       report.print(0, "Writing file : " + file_name);
 
       iErr = write_header(file_name,
-			  type_output,
-			  neutrals,
-			  ions,
-			  grid,
-			  time,
-			  planet);
-      
+                          type_output,
+                          neutrals,
+                          ions,
+                          grid,
+                          time,
+                          planet);
+
       file_ext = ".bin";
       file_name = output_dir + "/" + file_pre + "_" + time_string + file_ext;
 
@@ -297,13 +297,13 @@ int output(Neutrals neutrals,
       report.print(0, "Writing file : " + file_name);
 
       iErr = write_binary_all_3d(file_name,
-				 type_output,
-				 neutrals,
-				 ions,
-				 grid,
-				 time,
-				 planet);
-      
+                                 type_output,
+                                 neutrals,
+                                 ions,
+                                 grid,
+                                 time,
+                                 planet);
+
     }  // if time check
   }  // for iOutput
 

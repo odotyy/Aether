@@ -11,9 +11,12 @@
 
 Grid::Grid(int nX_in, int nY_in, int nZ_in, int nGCs_in) {
 
-  nX = nX_in + nGCs_in * 2; nLons = nX;
-  nY = nY_in + nGCs_in * 2; nLats = nY;
-  nZ = nZ_in + nGCs_in * 2; nAlts = nZ;
+  nX = nX_in + nGCs_in * 2;
+  nLons = nX;
+  nY = nY_in + nGCs_in * 2;
+  nLats = nY;
+  nZ = nZ_in + nGCs_in * 2;
+  nAlts = nZ;
   nGCs = nGCs_in;
 
   geoLon_scgc.set_size(nX, nY, nZ);
@@ -49,7 +52,7 @@ Grid::Grid(int nX_in, int nY_in, int nZ_in, int nGCs_in) {
 
   dlon_center_scgc.set_size(nX, nY, nZ);
   dlon_center_dist_scgc.set_size(nX, nY, nZ);
-  
+
   sza_scgc.set_size(nX, nY, nZ);
   cos_sza_scgc.set_size(nX, nY, nZ);
 
@@ -115,12 +118,26 @@ int64_t Grid::get_nPointsInGrid() {
 // Get a bunch of sizes within the grid
 // --------------------------------------------------------------------------
 
-int64_t Grid::get_nX() { return nX; }
-int64_t Grid::get_nY() { return nY; }
-int64_t Grid::get_nZ() { return nZ; }
+int64_t Grid::get_nX() {
+  return nX;
+}
+int64_t Grid::get_nY() {
+  return nY;
+}
+int64_t Grid::get_nZ() {
+  return nZ;
+}
 
-int64_t Grid::get_nLons() { return nLons; }
-int64_t Grid::get_nLats() { return nLats; }
-int64_t Grid::get_nAlts() { return nAlts; }
+int64_t Grid::get_nLons() {
+  return nLons;
+}
+int64_t Grid::get_nLats() {
+  return nLats;
+}
+int64_t Grid::get_nAlts() {
+  return nAlts;
+}
 
-int64_t Grid::get_nGCs() { return nGCs; }
+int64_t Grid::get_nGCs() {
+  return nGCs;
+}

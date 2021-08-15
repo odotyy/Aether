@@ -5,7 +5,7 @@
 #include "../include/aether.h"
 
 // -----------------------------------------------------------------------------
-// 
+//
 // -----------------------------------------------------------------------------
 
 void Ions::calc_ion_neutral_coll_freq(Neutrals neutrals, Report &report) {
@@ -14,31 +14,33 @@ void Ions::calc_ion_neutral_coll_freq(Neutrals neutrals, Report &report) {
   static int iFunction = -1;
   report.enter(function, iFunction);
   fcube t, one_minus_log;
-  
+
   for (int iIon = 0; iIon < nIons; iIon++) {
     if (species[iIon].nu_ion_neutral_coef.size() > 0) {
       for (int iNeutral = 0; iNeutral < nSpecies; iNeutral++) {
-	species[iIon].nu_ion_neutral_vcgc[iNeutral].zeros();
-	if (species[iIon].nu_is_resonant[iNeutral]) {
-	  t = (species[iIon].nu_in_res_tn_frac[iNeutral] *
-	       neutrals.temperature_scgc +
-	       species[iIon].nu_in_res_tn_frac[iNeutral] *
-	       ion_temperature_scgc);
-	  one_minus_log = 
-	    (1.0 - species[iIon].nu_in_res_coef2[iNeutral] *
-	     log10(t));
-	  species[iIon].nu_ion_neutral_vcgc[iNeutral] =
-	    species[iIon].nu_in_res_coef1[iNeutral] *
-	    neutrals.species[iNeutral].density_scgc %
-	    sqrt(t) % one_minus_log % one_minus_log;
-	} else {
-	  species[iIon].nu_ion_neutral_vcgc[iNeutral] =
-	    species[iIon].nu_ion_neutral_coef[iNeutral] *
-	    neutrals.species[iNeutral].density_scgc;
-	}
+        species[iIon].nu_ion_neutral_vcgc[iNeutral].zeros();
+
+        if (species[iIon].nu_is_resonant[iNeutral]) {
+          t = (species[iIon].nu_in_res_tn_frac[iNeutral] *
+               neutrals.temperature_scgc +
+               species[iIon].nu_in_res_tn_frac[iNeutral] *
+               ion_temperature_scgc);
+          one_minus_log =
+            (1.0 - species[iIon].nu_in_res_coef2[iNeutral] *
+             log10(t));
+          species[iIon].nu_ion_neutral_vcgc[iNeutral] =
+            species[iIon].nu_in_res_coef1[iNeutral] *
+            neutrals.species[iNeutral].density_scgc %
+            sqrt(t) % one_minus_log % one_minus_log;
+        } else {
+          species[iIon].nu_ion_neutral_vcgc[iNeutral] =
+            species[iIon].nu_ion_neutral_coef[iNeutral] *
+            neutrals.species[iNeutral].density_scgc;
+        }
       }
     }
   }
+
   report.exit(function);
   return;
 }

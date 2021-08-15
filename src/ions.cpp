@@ -37,7 +37,7 @@ Ions::species_chars Ions::create_species(Grid grid) {
   tmp.perp_velocity_vcgc = make_cube_vector(nLons, nLats, nAlts, 3);
 
   tmp.nu_ion_neutral_vcgc = make_cube_vector(nLons, nLats, nAlts, nSpecies);
-  
+
   return tmp;
 }
 
@@ -55,7 +55,7 @@ Ions::Ions(Grid grid, Inputs input, Report report) {
 
   report.print(2, "Initializing Ions");
 
-  for (int iSpecies=0; iSpecies < nIons; iSpecies++) {
+  for (int iSpecies = 0; iSpecies < nIons; iSpecies++) {
     tmp = create_species(grid);
     species.push_back(tmp);
   }
@@ -90,10 +90,12 @@ Ions::Ions(Grid grid, Inputs input, Report report) {
   // Make vectors:
   efield_vcgc = make_cube_vector(nLons, nLats, nAlts, 3);
   exb_vcgc = make_cube_vector(nLons, nLats, nAlts, 3);
-  
+
   // This gets a bunch of the species-dependent characteristics:
   int iErr = read_planet_file(input, report);
-  if (iErr > 0) std::cout << "Error in reading planet file!" << '\n';
+
+  if (iErr > 0)
+    std::cout << "Error in reading planet file!" << '\n';
 }
 
 // -----------------------------------------------------------------------------
@@ -131,7 +133,8 @@ int Ions::read_planet_file(Inputs input, Report report) {
         report.print(4, "Found #ions!");
 
         std::vector<std::vector<std::string>> lines = read_csv(infile_ptr);
-        if (lines.size()-1 != nIons) {
+
+        if (lines.size() - 1 != nIons) {
           std::cout << "num of ion species (nIons) defined in planet.h file : "
                     << nIons << "\n";
           std::cout << "number of ions defined in planet.in file : "
@@ -141,23 +144,28 @@ int Ions::read_planet_file(Inputs input, Report report) {
         } else {
           // assume order of rows right now:
           // name, mass, charge, advect
-          for (int iSpecies=0; iSpecies < nIons; iSpecies++) {
-            report.print(5, "setting ion species " + lines[iSpecies+1][0]);
-            species[iSpecies].cName = lines[iSpecies+1][0];
-            species[iSpecies].mass = stof(lines[iSpecies+1][1]) * cAMU;
-            species[iSpecies].charge = stoi(lines[iSpecies+1][2]);
-            species[iSpecies].DoAdvect = stoi(lines[iSpecies+1][3]);
+          for (int iSpecies = 0; iSpecies < nIons; iSpecies++) {
+            report.print(5, "setting ion species " + lines[iSpecies + 1][0]);
+            species[iSpecies].cName = lines[iSpecies + 1][0];
+            species[iSpecies].mass = stof(lines[iSpecies + 1][1]) * cAMU;
+            species[iSpecies].charge = stoi(lines[iSpecies + 1][2]);
+            species[iSpecies].DoAdvect = stoi(lines[iSpecies + 1][3]);
           }
+
           species[nIons].cName = "e-";
           species[nIons].mass = cME;
           species[nIons].charge = -1;
           species[nIons].DoAdvect = 0;
         }
       }
-      if (infile_ptr.eof()) IsDone = 1;
+
+      if (infile_ptr.eof())
+        IsDone = 1;
     }
+
     infile_ptr.close();
   }
+
   return iErr;
 }
 
@@ -174,9 +182,11 @@ void Ions::fill_electrons(Report &report) {
   report.enter(function, iFunction);
 
   species[nIons].density_scgc.zeros();
-  for (iSpecies=0; iSpecies < nIons; iSpecies++)
+
+  for (iSpecies = 0; iSpecies < nIons; iSpecies++)
     species[nIons].density_scgc =
       species[nIons].density_scgc + species[iSpecies].density_scgc;
+
   density_scgc = species[nIons].density_scgc;
 
   report.exit(function);
@@ -205,7 +215,8 @@ int Ions::get_species_id(std::string name, Report &report) {
         break;
       }
   }
+
   report.exit(function);
   return id_;
 }
-  
+

@@ -32,23 +32,23 @@ fcube calc_gradient_lon(fcube value, Grid grid) {
   gradient.zeros();
 
   // Interior:
-  for (iLon = 1; iLon < nLons-1; iLon++)
+  for (iLon = 1; iLon < nLons - 1; iLon++)
     gradient.row(iLon) =
-      (value.row(iLon+1) - value.row(iLon-1)) /
+      (value.row(iLon + 1) - value.row(iLon - 1)) /
       (2 * grid.dlon_center_dist_scgc.row(iLon));
 
   // Lower (one sided):
   iLon = 0;
   gradient.row(iLon) =
-    (value.row(iLon+1) - value.row(iLon)) /
+    (value.row(iLon + 1) - value.row(iLon)) /
     grid.dlon_center_dist_scgc.row(iLon);
-  
+
   // Upper (one sided):
-  iLon = nLons-1;
+  iLon = nLons - 1;
   gradient.row(iLon) =
-    (value.row(iLon) - value.row(iLon-1)) /
+    (value.row(iLon) - value.row(iLon - 1)) /
     grid.dlon_center_dist_scgc.row(iLon);
-  
+
   return gradient;
 }
 
@@ -67,23 +67,23 @@ fcube calc_gradient_lat(fcube value, Grid grid) {
   gradient.zeros();
 
   // Interior:
-  for (iLat = 1; iLat < nLats-1; iLat++)
+  for (iLat = 1; iLat < nLats - 1; iLat++)
     gradient.col(iLat) =
-      (value.col(iLat+1) - value.col(iLat-1)) /
+      (value.col(iLat + 1) - value.col(iLat - 1)) /
       (2 * grid.dlat_center_dist_scgc.col(iLat));
 
   // Lower (one sided):
   iLat = 0;
   gradient.col(iLat) =
-    (value.col(iLat+1) - value.col(iLat)) /
+    (value.col(iLat + 1) - value.col(iLat)) /
     grid.dlat_center_dist_scgc.col(iLat);
-  
+
   // Upper (one sided):
-  iLat = nLats-1;
+  iLat = nLats - 1;
   gradient.col(iLat) =
-    (value.col(iLat) - value.col(iLat-1)) /
+    (value.col(iLat) - value.col(iLat - 1)) /
     grid.dlat_center_dist_scgc.col(iLat);
-  
+
   return gradient;
 }
 
@@ -100,27 +100,28 @@ fcube calc_gradient_alt(fcube value, Grid grid) {
 
   fcube gradient(nLons, nLats, nAlts);
   gradient.zeros();
-  
+
   fcube one_minus_r2 = 1.0 - grid.dalt_ratio_sq_scgc;
 
   // Central part
-  for (iAlt = 1; iAlt < nAlts-1; iAlt++)
+  for (iAlt = 1; iAlt < nAlts - 1; iAlt++)
     gradient.slice(iAlt) =
-      (value.slice(iAlt+1)
+      (value.slice(iAlt + 1)
        - one_minus_r2.slice(iAlt) % value.slice(iAlt)
-       - grid.dalt_ratio_scgc.slice(iAlt) % value.slice(iAlt-1)) /
-      (grid.dalt_lower_scgc.slice(iAlt+1) % (1.0 + grid.dalt_ratio_scgc.slice(iAlt)));
+       - grid.dalt_ratio_scgc.slice(iAlt) % value.slice(iAlt - 1)) /
+      (grid.dalt_lower_scgc.slice(iAlt + 1) % (1.0 + grid.dalt_ratio_scgc.slice(
+                                                 iAlt)));
 
   // lower boundary
   iAlt = 0;
-  gradient.slice(iAlt) = 
-    (value.slice(iAlt+1) - value.slice(iAlt)) /
+  gradient.slice(iAlt) =
+    (value.slice(iAlt + 1) - value.slice(iAlt)) /
     grid.dalt_lower_scgc.slice(iAlt);
 
   // upper boundary
-  iAlt = nAlts-1;
-  gradient.slice(iAlt) = 
-    (value.slice(iAlt) - value.slice(iAlt-1)) /
+  iAlt = nAlts - 1;
+  gradient.slice(iAlt) =
+    (value.slice(iAlt) - value.slice(iAlt - 1)) /
     grid.dalt_lower_scgc.slice(iAlt);
 
   return gradient;

@@ -10,10 +10,10 @@
 void Ions::calc_ion_temperature(Neutrals neutrals, Grid grid, Report &report) {
 
   int64_t iIon;
-  
-  for (iIon = 0; iIon < nIons; iIon++) {
+
+  for (iIon = 0; iIon < nIons; iIon++)
     species[iIon].temperature_scgc = neutrals.temperature_scgc;
-  }
+
   ion_temperature_scgc = neutrals.temperature_scgc;
   electron_temperature_scgc = neutrals.temperature_scgc;
   return;

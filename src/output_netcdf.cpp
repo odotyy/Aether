@@ -20,24 +20,24 @@ void output_variable_3d(std::vector<size_t> count_start,
                         NcVar variable) {
 
   // Get the size of the cube:
-  
+
   int64_t nX = value.n_rows;
   int64_t nY = value.n_cols;
   int64_t nZ = value.n_slices;
   int64_t iX, iY, iZ, iTotal, index;
 
   iTotal = nX * nY * nZ;
-  
+
   // Create a temporary c-array to use to output the variable
-  
+
   float *tmp_s3gc = static_cast<float*>(malloc(iTotal * sizeof(float)));
 
   // Move the data from the cube to the c-array
-  
+
   for (iX = 0; iX < nX; iX++) {
     for (iY = 0; iY < nY; iY++) {
       for (iZ = 0; iZ < nZ; iZ++) {
-        index = iX*nY*nZ + iY*nZ + iZ;
+        index = iX * nY * nZ + iY * nZ + iZ;
         tmp_s3gc[index] = value(iX, iY, iZ);
       }
     }
@@ -51,7 +51,7 @@ void output_variable_3d(std::vector<size_t> count_start,
 }
 
 //----------------------------------------------------------------------
-// Output the different file types to netCDF files. 
+// Output the different file types to netCDF files.
 //----------------------------------------------------------------------
 
 int output(Neutrals neutrals,
@@ -91,9 +91,14 @@ int output(Neutrals neutrals,
 
       std::string type_output = args.get_type_output(iOutput);
 
-      if (type_output == "neutrals") file_pre = "3DNEU";
-      if (type_output == "states") file_pre = "3DALL";
-      if (type_output == "bfield") file_pre = "3DBFI";
+      if (type_output == "neutrals")
+        file_pre = "3DNEU";
+
+      if (type_output == "states")
+        file_pre = "3DALL";
+
+      if (type_output == "bfield")
+        file_pre = "3DBFI";
 
       time_string = time.get_YMD_HMS();
       file_name = file_pre + "_" + time_string + file_ext;
@@ -158,10 +163,12 @@ int output(Neutrals neutrals,
 
         // Output all species densities:
         std::vector<NcVar> denVar;
-        for (int iSpecies=0; iSpecies < nSpecies; iSpecies++) {
+
+        for (int iSpecies = 0; iSpecies < nSpecies; iSpecies++) {
           if (report.test_verbose(3))
             std::cout << "Outputting Var : "
                       << neutrals.species[iSpecies].cName << "\n";
+
           denVar.push_back(ncdf_file.addVar(neutrals.species[iSpecies].cName,
                                             ncFloat, dimVector));
           denVar[iSpecies].putAtt(UNITS, neutrals.density_unit);
@@ -178,7 +185,7 @@ int output(Neutrals neutrals,
 
         // Output SZA
         NcVar szaVar = ncdf_file.addVar("Solar Zenith Angle",
-          ncFloat, dimVector);
+                                        ncFloat, dimVector);
         szaVar.putAtt(UNITS, "degrees");
         output_variable_3d(startp, countp, grid.sza_scgc * cRtoD, szaVar);
 
@@ -193,10 +200,12 @@ int output(Neutrals neutrals,
 
         // Output all species densities:
         std::vector<NcVar> ionVar;
-        for (int iSpecies=0; iSpecies < nIons; iSpecies++) {
+
+        for (int iSpecies = 0; iSpecies < nIons; iSpecies++) {
           if (report.test_verbose(3))
             std::cout << "Outputting Var : "
                       << ions.species[iSpecies].cName << "\n";
+
           ionVar.push_back(ncdf_file.addVar(ions.species[iSpecies].cName,
                                             ncFloat, dimVector));
           ionVar[iSpecies].putAtt(UNITS, neutrals.density_unit);
@@ -226,7 +235,7 @@ int output(Neutrals neutrals,
         output_variable_3d(startp, countp, grid.magLat_scgc, mLonVar);
 
         NcVar mLTVar = ncdf_file.addVar("Magnetic Local Time",
-                                         ncFloat, dimVector);
+                                        ncFloat, dimVector);
         mLTVar.putAtt(UNITS, "hours");
         output_variable_3d(startp, countp, grid.magLocalTime_scgc, mLTVar);
 
