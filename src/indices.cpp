@@ -301,11 +301,12 @@ int Indices::get_al_index_id() { return iAL_; }
 // --------------------------------------------------------------------
 // This function will perturb the inputed data array an amount
 // determined by the input or by a random amount, if amount is zero
-// then it will be random.  if To_Multiply is true it will multiply by a
-// percentage, else it will add if all is true it will use same value
-// for all elements, else it will do different normally distributed
-// random values for each element.  if IsStdev is true then use stdev in
-// the randomization, else use perturb amount for all
+// then it will be random.  if To_Multiply is true it will multiply by
+// a percentage, else it will add. if perturb_all_same is true it will
+// use same value for all elements, else it will do different normally
+// distributed random values for each element.  if IsStdev is true
+// then use stdev in the randomization, else use perturb amount for
+// all
 //
 // This function perturbs a given index based on input conditions ---
 // if chosen to set seed manually, it will use the given seed to
@@ -313,6 +314,7 @@ int Indices::get_al_index_id() { return iAL_; }
 // it will use a randomly generated seed if stdev_perturb (in args) is
 // not 0, it will use a normal distribution, else it will perturb by
 // that amount
+
 // --------------------------------------------------------------------
 void perturb(std::vector<float> &indexarray, 
 	     bool To_Multiply,
@@ -332,7 +334,8 @@ void perturb(std::vector<float> &indexarray,
   seedfile << "Seed: " << seed << std::endl;  
   seedfile.close();
   
-  if (args.get_Perturb_Stdev() == 0) {    // do random
+  if (args.get_Perturb_Stdev() != 0) {    // do generator
+
     std::default_random_engine generator (seed); 
     std::normal_distribution<double> distribution(args.get_perturbamount(),
 						  args.get_Perturb_Stdev());

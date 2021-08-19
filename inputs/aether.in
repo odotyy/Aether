@@ -75,12 +75,12 @@ bfield, 0.0
 UA/inputs/chemistry_earth.csv
 
 #seed
-1
-8
+1        0/1 depending on if you want to set seed manually or not, 1 means true
+8        the seed you want if setting manually
 
 
 omniweb
 omni_20110622.txt
-1
-1
-9
+1           0/1 depending of if you want to perturb or not, 0 means no
+1           if non-zero this is the standard deviation used for pertubation
+9           if stdev non-0, this is mean for the random distribution, if stdev = 0 then this is the amount to perturb by
