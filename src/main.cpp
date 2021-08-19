@@ -34,11 +34,15 @@ int main() {
   // Initialize the indices (and read the files):
   Indices indices(input);
   iErr = read_and_store_indices(indices, input, report);
+  // testing perturb
+  //indices.perturb_general(input, 0);
+  //indices.dump_one(0, input);
 
   // Initialize Geographic grid:
   Grid gGrid(input.get_nLonsGeo(),
-       input.get_nLatsGeo(),
-       input.get_nAltsGeo(), nGeoGhosts);
+	     input.get_nLatsGeo(),
+	     input.get_nAltsGeo(),
+	     nGeoGhosts);
   gGrid.init_geo_grid(planet, input, report);
   gGrid.fill_grid(planet, report);
 
@@ -92,10 +96,6 @@ int main() {
 
     // Do some coupling here. But we have no coupling to do. Sad.
   }
-
-  // testing perturb
-  //indices.perturb_general(input, 0);
-  //indices.dump_one(0, input);
  
   report.exit(function);
   report.times();
