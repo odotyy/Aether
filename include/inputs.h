@@ -28,6 +28,9 @@ public:
   std::string get_euv_model();
   std::string get_euv_file();
   std::string get_output_directory();
+  std::string get_seed_file();
+  std::string get_restartout_directory();
+  std::string get_restartin_directory();  
   std::string get_chemistry_file();
   std::vector<std::string> get_omniweb_files();
   int get_number_of_omniweb_files();
@@ -42,7 +45,8 @@ public:
   int get_ToPerturb();
   int get_Perturb_Stdev();
   int get_perturbamount();
-
+  std::string get_indices_dumpfile();
+  
   // ------------------------------
   // Grid inputs:
 
@@ -59,10 +63,10 @@ public:
 
   struct perturb_input_struct {
     int SetSeedManually;
-    int seed_input =0;
-    int ToPerturb =0;
+    int seed_input = 0;
+    int ToPerturb = 0;
     int Stdev_Perturb;
-    int perturb_amount =0;
+    int perturb_amount = 0;
   };
 
   grid_input_struct get_grid_inputs();
@@ -85,6 +89,8 @@ private:
   std::string planet = "earth";
   std::string f107_file = "";
   std::string planet_species_file = "";
+  std::string indices_dumpfile = "indices_dump.txt";
+  std::string seed_file = "seed.txt";
 
   std::string bfield = "none";
 
@@ -97,8 +103,8 @@ private:
   std::vector<float> dt_output;
   std::vector<std::string> type_output;
   std::string output_directory = "UA/output";
-  std::string restart_out_directory = "UA/restartOut";
-  std::string restart_in_directory = "UA/restartIn";
+  std::string restartout_directory = "UA/restartOut";
+  std::string restartin_directory = "UA/restartIn";
 
   float dt_euv;
   float dt_report;

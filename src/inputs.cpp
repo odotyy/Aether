@@ -200,6 +200,22 @@ std::string Inputs::get_euv_file() {
 }
 
 // -----------------------------------------------------------------------
+// Return indices dumpfile name
+// -----------------------------------------------------------------------
+
+std::string Inputs::get_indices_dumpfile() {
+  return indices_dumpfile;
+}
+
+// -----------------------------------------------------------------------
+// Return seedfile name
+// -----------------------------------------------------------------------
+
+std::string Inputs::get_seed_file() {
+  return seed_file;
+}
+
+// -----------------------------------------------------------------------
 // Return Chemistry file name
 // -----------------------------------------------------------------------
 
@@ -262,6 +278,22 @@ std::string Inputs::get_planet_species_file() {
 
 std::string Inputs::get_output_directory() {
   return output_directory;
+}
+
+// -----------------------------------------------------------------------
+// Return directory to write restart output files to.
+// -----------------------------------------------------------------------
+
+std::string Inputs::get_restartout_directory() {
+  return restartout_directory;
+}
+
+// -----------------------------------------------------------------------
+// Return directory to restart input files from.
+// -----------------------------------------------------------------------
+
+std::string Inputs::get_restartin_directory() {
+  return restartin_directory;
 }
 
 
