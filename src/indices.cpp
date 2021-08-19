@@ -298,8 +298,6 @@ int Indices::get_au_index_id() { return iAU_; }
 int Indices::get_al_index_id() { return iAL_; }
 
 
-
-
 // --------------------------------------------------------------------
 // This function will perturb the inputed data array an amount
 // determined by the input or by a random amount, if amount is zero
@@ -308,12 +306,13 @@ int Indices::get_al_index_id() { return iAL_; }
 // for all elements, else it will do different normally distributed
 // random values for each element.  if IsStdev is true then use stdev in
 // the randomization, else use perturb amount for all
-
-// This function perturbs a given index based on input conditions
-// ---
-// if chosen to set seed manually, it will use the given seed to generate a random 
-// number sequence to use to perturb the data, else it will use a randomly generated seed 
-// if stdev_perturb (in args) is not 0, it will use a normal distribution, else it will perturb by that amount
+//
+// This function perturbs a given index based on input conditions ---
+// if chosen to set seed manually, it will use the given seed to
+// generate a random number sequence to use to perturb the data, else
+// it will use a randomly generated seed if stdev_perturb (in args) is
+// not 0, it will use a normal distribution, else it will perturb by
+// that amount
 // --------------------------------------------------------------------
 void perturb(std::vector<float> &indexarray, 
 	     bool To_Multiply,
@@ -323,22 +322,26 @@ void perturb(std::vector<float> &indexarray,
   int seed = args.get_seed();
   if (args.get_SetSeedManually() == 0) 
     seed = int(std::chrono::system_clock::now().time_since_epoch().count());  
-  std::cout << "Seed " <<seed << std::endl;  
+  std::cout << "Seed " << seed << std::endl;  
 
   // create seed.in
   std::ofstream seedfile;
-  seedfile.open("./UA/restartOut/seed.in");
+  std::string seedfile_name =
+    args.get_restartout_directory() + args.get_seed_file();
+  seedfile.open(seedfile_name);
   seedfile << "Seed: " << seed << std::endl;  
-
+  seedfile.close();
+  
   if (args.get_Perturb_Stdev() == 0) {    // do random
     std::default_random_engine generator (seed); 
-    std::normal_distribution<double> distribution(args.get_perturbamount(), args.get_Perturb_Stdev());
-    int first_digit = distribution( generator);
+    std::normal_distribution<double> distribution(args.get_perturbamount(),
+						  args.get_Perturb_Stdev());
+    int first_digit = distribution(generator);
     if (To_Multiply) {    // multiply by 
       if (Perturb_All_Same) {
 	double val = distribution(generator);
         for (int i = 0; i < indexarray.size(); ++i) {
-	  indexarray[i] = indexarray[i] * (1+ val);
+	  indexarray[i] = indexarray[i] * (1 + val);
         }
       } else {
 	for (int i = 0; i < indexarray.size(); ++i) {
@@ -378,7 +381,7 @@ void perturb(std::vector<float> &indexarray,
 
 void Indices::perturb_general(Inputs input, int index_number) {
   
-  perturb(all_indices_arrays[index_number].values, true,true,input); 
+  perturb(all_indices_arrays[index_number].values, true, true, input); 
   
 } // allows person to input stdev, type of change, etc to perturb data
   // set, or do in set_* method
@@ -386,8 +389,11 @@ void Indices::perturb_general(Inputs input, int index_number) {
 
 void Indices::dump_one(int ind, Inputs args){
 
+  std::string indices_dumpfile =
+    args.get_output_directory() + args.get_indices_dumpfile();
+
   std::ofstream dumpfile;
-  dumpfile.open("indices.txt");
+  dumpfile.open(indices_dumpfile);
   dumpfile << "#INDEX" << std::endl;
   // print time/value pairs
   dumpfile << "#PERTURB" << std::endl;
