@@ -335,7 +335,6 @@ void perturb(std::vector<float> &indexarray,
   seedfile.close();
   
   if (args.get_Perturb_Stdev() != 0) {    // do generator
-
     std::default_random_engine generator (seed); 
     std::normal_distribution<double> distribution(args.get_perturbamount(),
 						  args.get_Perturb_Stdev());
